@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { GameEngine } from './game-engine';
 import { GameState, Card, CardDrawResult } from './types';
 

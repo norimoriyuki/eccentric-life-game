@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'エキセントリックライフゲーム',
+  title: 'エキセントリック人生ゲーム',
   description: 'リアル人生ゲーム - 資産、信用、能力、年齢のステータスでサバイバル',
 }
 

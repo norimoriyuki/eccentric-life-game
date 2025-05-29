@@ -50,15 +50,15 @@ export class GameEngine {
    */
   initializeGame(params: GameInitParams): GameState {
     const initialStatus: GameStatus = params.initialStatus ? {
-      wealth: params.initialStatus.wealth ?? this.randomBetween(0, 1000),
+      wealth: params.initialStatus.wealth ?? this.randomBetween(-500, 1000),
       trust: params.initialStatus.trust ?? this.randomBetween(0, 100),
       ability: params.initialStatus.ability ?? this.randomBetween(0, 100),
-      age: params.initialStatus.age ?? this.randomBetween(18, 30)
+      age: params.initialStatus.age ?? this.randomBetween(18, 60)
     } : {
-      wealth: this.randomBetween(0, 1000),
+      wealth: this.randomBetween(-500, 1000),
       trust: this.randomBetween(0, 100),
       ability: this.randomBetween(0, 100),
-      age: this.randomBetween(18, 30)
+      age: this.randomBetween(18, 60)
     };
 
     this.state = {
@@ -92,8 +92,8 @@ export class GameEngine {
    * カードを抽選
    */
   drawCards(): CardDrawResult {
-    const drawnPositiveCards = this.drawCardsByType(positiveCards, 3);
-    const drawnNegativeCards = this.drawCardsByType(negativeCards, 3);
+    const drawnPositiveCards = this.drawCardsByTypeWithoutDuplication(positiveCards, 4);
+    const drawnNegativeCards = this.drawCardsByTypeWithDuplication(negativeCards, 4);
 
     return {
       positiveCards: drawnPositiveCards,
@@ -102,9 +102,9 @@ export class GameEngine {
   }
 
   /**
-   * 指定されたカード群から指定枚数を抽選
+   * 指定されたカード群から指定枚数を抽選（重複なし）
    */
-  private drawCardsByType(cardPool: Card[], count: number): Card[] {
+  private drawCardsByTypeWithoutDuplication(cardPool: Card[], count: number): Card[] {
     const availableCards = cardPool.map(card => ({
       card,
       weight: this.calculateCardAppearanceRate(card)
@@ -123,6 +123,34 @@ export class GameEngine {
     }
 
     return drawnCards;
+  }
+
+  /**
+   * 指定されたカード群から指定枚数を抽選（重複あり）
+   */
+  private drawCardsByTypeWithDuplication(cardPool: Card[], count: number): Card[] {
+    const availableCards = cardPool.map(card => ({
+      card,
+      weight: this.calculateCardAppearanceRate(card)
+    }));
+
+    const drawnCards: Card[] = [];
+
+    for (let i = 0; i < count; i++) {
+      if (availableCards.length === 0) break;
+
+      const selectedCard = this.weightedRandomSelect(availableCards);
+      drawnCards.push(selectedCard.card);
+    }
+
+    return drawnCards;
+  }
+
+  /**
+   * 指定されたカード群から指定枚数を抽選（旧バージョン、重複なし）
+   */
+  private drawCardsByType(cardPool: Card[], count: number): Card[] {
+    return this.drawCardsByTypeWithoutDuplication(cardPool, count);
   }
 
   /**
@@ -212,6 +240,13 @@ export class GameEngine {
       }
     }
 
+    // 毎ターン年齢を+1する（ゲームオーバーでない場合のみ）
+    if (!isGameOver) {
+      const ageChange = { age: 1 };
+      statusChanges.push(ageChange);
+      newStatus = this.applyStatusChange(newStatus, ageChange);
+    }
+
     // ゲーム状態を更新
     this.state.selectedPositiveCards = positiveCards;
     this.state.selectedNegativeCards = autoSelectedNegativeCards;
@@ -274,8 +309,7 @@ export class GameEngine {
     }
 
     // 下限値の適用
-    newStatus.wealth = Math.max(0, newStatus.wealth);
-    newStatus.trust = Math.max(0, Math.min(100, newStatus.trust));
+    // 資産と信用はマイナス値も許可、能力と年齢は0以上
     newStatus.ability = Math.max(0, newStatus.ability);
     newStatus.age = Math.max(0, newStatus.age);
 

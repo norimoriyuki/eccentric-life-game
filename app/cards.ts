@@ -5,7 +5,9 @@ import {
   GameOverReason, 
   WeightCombineMethod 
 } from './types';
-import { WeightPresets } from './weight-utils';
+
+// 簡易的な重み設定関数
+const createWeightConfig = (value: number) => ({ value });
 
 // ===============================
 // ポジティブカード
@@ -41,12 +43,7 @@ export const positiveCards: Card[] = [
       },
       description: '資産+30万円'
     },
-    baseAppearanceRate: 0.6,
-    appearanceCondition: {
-      statusWeights: {
-        age: WeightPresets.positiveLinear(0.02) // 年齢が高いほど出現しやすい
-      }
-    }
+    baseAppearanceRate: 0.6
   },
 
   {
@@ -76,12 +73,7 @@ export const positiveCards: Card[] = [
       },
       description: '資産が1.2倍になる'
     },
-    baseAppearanceRate: 0.4,
-    appearanceCondition: {
-      statusWeights: {
-        wealth: WeightPresets.positiveLinear(0.001) // 資産が多いほど出現しやすい
-      }
-    }
+    baseAppearanceRate: 0.4
   },
 
   {
@@ -96,14 +88,7 @@ export const positiveCards: Card[] = [
       },
       description: '資産が1.4倍になる'
     },
-    baseAppearanceRate: 0.2,
-    appearanceCondition: {
-      statusWeights: {
-        ability: WeightPresets.positiveLinear(0.02), // 能力が高いほど
-        wealth: WeightPresets.positiveLinear(0.001)  // 資産が多いほど
-      },
-      combineMethod: WeightCombineMethod.MULTIPLY
-    }
+    baseAppearanceRate: 0.2
   },
 
   // エキセントリックカード
@@ -154,12 +139,7 @@ export const positiveCards: Card[] = [
       description: '資産が5倍、信用度-40',
       risks: ['社会的信用失墜']
     },
-    baseAppearanceRate: 0.02,
-    appearanceCondition: {
-      statusWeights: {
-        trust: WeightPresets.belowThreshold(30, 2, 0.1) // 信用度が低いと出現しやすい
-      }
-    }
+    baseAppearanceRate: 0.02
   },
 
   {
@@ -187,11 +167,6 @@ export const positiveCards: Card[] = [
       description: '年齢上昇が永続的に停止'
     },
     baseAppearanceRate: 0.001, // 超レア
-    appearanceCondition: {
-      statusWeights: {
-        age: WeightPresets.positiveLinear(0.01) // 年齢が高いほど出現しやすい
-      }
-    }
   },
 
   {
@@ -249,13 +224,6 @@ export const positiveCards: Card[] = [
       risks: ['政治スキャンダル', '汚職疑惑']
     },
     baseAppearanceRate: 0.1,
-    appearanceCondition: {
-      statusWeights: {
-        wealth: WeightPresets.positiveLinear(0.002),
-        ability: WeightPresets.positiveLinear(0.01)
-      },
-      combineMethod: WeightCombineMethod.ADD
-    }
   },
 
   {
@@ -321,12 +289,7 @@ export const positiveCards: Card[] = [
       description: '資産+300万円',
       risks: ['健康リスク', '後遺症の可能性']
     },
-    baseAppearanceRate: 0.05,
-    appearanceCondition: {
-      statusWeights: {
-        wealth: WeightPresets.negativeLinear(-0.002) // 貧乏ほど出現しやすい
-      }
-    }
+    baseAppearanceRate: 0.05
   },
 
   {
@@ -343,12 +306,7 @@ export const positiveCards: Card[] = [
       description: '資産5倍、信用度-50',
       risks: ['暗殺リスク大幅増加']
     },
-    baseAppearanceRate: 0.02,
-    appearanceCondition: {
-      statusWeights: {
-        trust: WeightPresets.belowThreshold(20, 3, 0.1)
-      }
-    }
+    baseAppearanceRate: 0.02
   },
 
   {
@@ -464,10 +422,11 @@ export const negativeCards: Card[] = [
       description: 'ゲームオーバー：老衰'
     },
     baseAppearanceRate: 0.01,
-    appearanceCondition: {
-      statusWeights: {
-        age: WeightPresets.ageExponential(100, 0.1) // 100歳以上で指数的に増加
+    probabilityCalculator: (status) => {
+      if (status.age > 50) {
+        return 1 + (status.age - 50); // 50歳を超えると出現率上昇
       }
+      return 1; // 50歳以下は基本確率
     }
   },
 
@@ -481,12 +440,7 @@ export const negativeCards: Card[] = [
       gameOverReason: GameOverReason.ASSASSINATION,
       description: 'ゲームオーバー：暗殺'
     },
-    baseAppearanceRate: 0.005,
-    appearanceCondition: {
-      statusWeights: {
-        trust: WeightPresets.lowValueExponential(0.08) // 信用が低いほど指数的に増加
-      }
-    }
+    baseAppearanceRate: 0.005
   },
 
   {
@@ -517,25 +471,20 @@ export const negativeCards: Card[] = [
       },
       description: '信用度-50、資産-200万円'
     },
-    baseAppearanceRate: 0.05,
-    appearanceCondition: {
-      statusWeights: {
-        trust: WeightPresets.belowThreshold(30, 2, 0.5)
-      }
-    }
+    baseAppearanceRate: 0.05
   },
 
   {
     id: 'traffic_violation',
     name: '交通違反',
     type: CardType.NEGATIVE,
-    description: '罰金で資産減少',
+    description: '罰金で資産が減る',
     effect: {
       type: EffectType.STATUS_CHANGE,
       statusChange: {
-        wealth: -50
+        wealth: -500  // -50から-500に大幅増加
       },
-      description: '資産-50万円'
+      description: '資産-500万円（重い罰金）'
     },
     baseAppearanceRate: 0.4
   },
@@ -573,55 +522,50 @@ export const negativeCards: Card[] = [
     id: 'government_abduction',
     name: '政府に拉致される',
     type: CardType.NEGATIVE,
-    description: '秘密組織に連れ去られる',
+    description: '秘密機関に連行され、全財産が没収される',
     effect: {
       type: EffectType.STATUS_CHANGE,
       statusChange: {
         wealth: -999999, // 全資産没収
-        trust: -100
+        trust: 0
       },
       description: '全資産没収、信用度ゼロ'
     },
-    baseAppearanceRate: 0.01,
-    appearanceCondition: {
-      statusWeights: {
-        ability: WeightPresets.positiveLinear(0.02) // 能力が高いほど危険
-      }
-    }
+    baseAppearanceRate: 0.02
   },
 
   {
-    id: 'sns_scandal',
+    id: 'sns_flame',
     name: 'SNS炎上',
     type: CardType.NEGATIVE,
-    description: 'ネットで大炎上して社会的制裁',
+    description: 'ネットで叩かれて社会的地位失墜',
     effect: {
       type: EffectType.STATUS_CHANGE,
       statusChange: {
         trust: -30,
-        wealth: -100
+        wealth: -800  // -100から-800に大幅増加
       },
-      description: '信用度-30、資産-100万円'
+      description: '信用度-30、資産-800万円（仕事失い、賠償金）'
     },
-    baseAppearanceRate: 0.2
+    baseAppearanceRate: 0.15
   },
 
   {
     id: 'cursed',
     name: '呪いにかかる',
     type: CardType.NEGATIVE,
-    description: '謎の呪いですべてが悪化',
+    description: '古い遺跡の呪いで全ステータス減少',
     effect: {
       type: EffectType.STATUS_CHANGE,
       statusChange: {
-        wealth: -100,
-        trust: -10,
-        ability: -10,
+        wealth: -1500,  // -200から-1500に大幅増加
+        trust: -15,
+        ability: -20,
         age: 3
       },
-      description: '全ステータス悪化'
+      description: '資産-1500万円、信用-15、能力-20、年齢+3歳'
     },
-    baseAppearanceRate: 0.03
+    baseAppearanceRate: 0.05
   },
 
   {
@@ -735,16 +679,17 @@ export const negativeCards: Card[] = [
     id: 'experiment_failure',
     name: '人体実験の失敗',
     type: CardType.NEGATIVE,
-    description: '実験の副作用で能力大幅減少',
+    description: '違法実験の後遺症で社会復帰困難',
     effect: {
       type: EffectType.STATUS_CHANGE,
       statusChange: {
-        ability: -60,
-        trust: -30
+        ability: -30,
+        trust: -25,
+        wealth: -1200  // -300から-1200に大幅増加
       },
-      description: '能力-60、外見変化で信用度-30'
+      description: '能力-30、信用-25、資産-1200万円（医療費・補償）'
     },
-    baseAppearanceRate: 0.02
+    baseAppearanceRate: 0.03
   },
 
   {
@@ -793,12 +738,7 @@ export const negativeCards: Card[] = [
       },
       description: '能力-40、資産-300万円'
     },
-    baseAppearanceRate: 0.02,
-    appearanceCondition: {
-      statusWeights: {
-        ability: WeightPresets.positiveLinear(0.01) // 能力が高いほど標的になりやすい
-      }
-    }
+    baseAppearanceRate: 0.02
   },
 
   {
@@ -847,12 +787,7 @@ export const negativeCards: Card[] = [
       },
       description: '全財産寄付、社会復帰不能'
     },
-    baseAppearanceRate: 0.02,
-    appearanceCondition: {
-      statusWeights: {
-        trust: WeightPresets.belowThreshold(40, 2, 0.5)
-      }
-    }
+    baseAppearanceRate: 0.02
   },
 
   {
@@ -933,26 +868,35 @@ export const negativeCards: Card[] = [
   },
 
   {
-    id: 'political_scandal',
-    name: '政治スキャンダルに巻き込まれる',
+    id: 'financial_crash',
+    name: '金融破綻',
     type: CardType.NEGATIVE,
-    description: '権力闘争の犠牲者となる',
+    description: '投資先が破綻して大損失',
     effect: {
       type: EffectType.STATUS_CHANGE,
       statusChange: {
-        trust: -100,
-        wealth: -500
+        wealthMultiplier: 0.3,  // 0.7から0.3に大幅減少（70%の損失）
+        trust: -10
       },
-      description: '信用度ゼロ、資産-500万円、社会的死'
+      description: '資産が70%減少、信用-10'
     },
-    baseAppearanceRate: 0.03,
-    appearanceCondition: {
-      statusWeights: {
-        wealth: WeightPresets.positiveLinear(0.001), // 金持ちほど標的に
-        trust: WeightPresets.positiveLinear(0.01)    // 信用が高いほど落差が大きい
+    baseAppearanceRate: 0.1,
+  },
+
+  {
+    id: 'political_scandal',
+    name: '政治スキャンダルに巻き込まれる',
+    type: CardType.NEGATIVE,
+    description: '政治家の汚職に関与したとして社会的に抹殺される',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      statusChange: {
+        trust: 0,
+        wealth: -2000  // -500から-2000に大幅増加
       },
-      combineMethod: WeightCombineMethod.MULTIPLY
-    }
+      description: '信用度ゼロ、資産-2000万円（法廷費用・賠償金）'
+    },
+    baseAppearanceRate: 0.02
   }
 ];
 

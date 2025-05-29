@@ -3,11 +3,7 @@ import {
   CardType, 
   EffectType, 
   GameOverReason, 
-  WeightCombineMethod 
 } from './types';
-
-// 簡易的な重み設定関数
-const createWeightConfig = (value: number) => ({ value });
 
 // ===============================
 // ポジティブカード

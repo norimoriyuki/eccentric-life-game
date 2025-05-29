@@ -16,12 +16,7 @@ import { positiveCards, negativeCards } from './cards';
 /**
  * シンプルな重み計算（weight-utils の代替）
  */
-function calculateAppearanceWeight(
-  status: GameStatus,
-  statusWeights: any,
-  combineMethod: WeightCombineMethod = WeightCombineMethod.MULTIPLY,
-  customCombiner?: any
-): number {
+function calculateAppearanceWeight(): number {
   // 簡略化された実装
   return 1;
 }
@@ -138,12 +133,7 @@ export class GameEngine {
     let finalRate = card.baseAppearanceRate;
 
     if (card.appearanceCondition?.statusWeights) {
-      const weight = calculateAppearanceWeight(
-        this.state.status,
-        card.appearanceCondition.statusWeights,
-        card.appearanceCondition.combineMethod || WeightCombineMethod.MULTIPLY,
-        card.appearanceCondition.customCombiner
-      );
+      const weight = calculateAppearanceWeight();
       finalRate *= weight;
     }
 

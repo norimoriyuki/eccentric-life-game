@@ -8,8 +8,7 @@ import {
   GameInitParams,
   StatusChange,
   GameOverReason,
-  GameTurnHistory,
-  WeightCombineMethod
+  GameTurnHistory
 } from './types';
 import { positiveCards, negativeCards } from './cards';
 

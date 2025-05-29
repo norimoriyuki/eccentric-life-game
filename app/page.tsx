@@ -233,6 +233,23 @@ const EccentricLifeGame: React.FC = () => {
 
           {drawnCards && (
             <>
+              {/* ネガティブカード */}
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold mb-4 text-red-700">
+                  ネガティブカード（自動選択される）
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {drawnCards.negativeCards.map((card) => (
+                    <CardComponent
+                      key={card.id}
+                      card={card}
+                      isPositive={false}
+                      disabled={true}
+                    />
+                  ))}
+                </div>
+              </div>
+
               {/* ポジティブカード */}
               <div className="mb-6">
                 <h3 className="text-2xl font-bold mb-4 text-green-700">
@@ -246,23 +263,6 @@ const EccentricLifeGame: React.FC = () => {
                       isPositive={true}
                       isSelected={selectedPositiveCards.some(c => c.id === card.id)}
                       onClick={() => togglePositiveCard(card)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* ネガティブカード */}
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold mb-4 text-red-700">
-                  ネガティブカード（自動選択される）
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {drawnCards.negativeCards.map((card) => (
-                    <CardComponent
-                      key={card.id}
-                      card={card}
-                      isPositive={false}
-                      disabled={true}
                     />
                   ))}
                 </div>

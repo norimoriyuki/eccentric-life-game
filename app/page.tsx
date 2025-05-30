@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { GameEngine } from './game-engine';
-import { GameState, Card, CardDrawResult, CardSelectionResult, GameOverReason } from './types';
+import { GameState, Card, CardDrawResult, CardSelectionResult, GameOverReason, GameStatus } from './types';
+import { CardExecutionOverlay } from './components/CardExecutionOverlay';
 
 // ゲーム画面の種類
 enum GameScreen {
@@ -13,6 +14,13 @@ enum GameScreen {
   GAME_OVER = 'game_over'
 }
 
+// カード実行結果の詳細
+interface CardExecutionDetail {
+  card: Card;
+  statusBefore: GameStatus;
+  statusAfter: GameStatus;
+}
+
 const EccentricLifeGame: React.FC = () => {
   const [gameEngine] = useState(new GameEngine());
   const [currentScreen, setCurrentScreen] = useState<GameScreen>(GameScreen.HOME);
@@ -21,6 +29,22 @@ const EccentricLifeGame: React.FC = () => {
   const [drawnCards, setDrawnCards] = useState<CardDrawResult | null>(null);
   const [selectedPositiveCards, setSelectedPositiveCards] = useState<Card[]>([]);
   const [lastCardResult, setLastCardResult] = useState<CardSelectionResult | null>(null);
+  
+  // カード実行オーバーレイ用の状態
+  const [isShowingCardExecution, setIsShowingCardExecution] = useState(false);
+  const [cardExecutionDetails, setCardExecutionDetails] = useState<CardExecutionDetail[]>([]);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  
+  // テスト用カウンター
+  const [testCounter, setTestCounter] = useState(0);
+
+  // カードを一枚ずつ実行するシステム
+  const [currentExecutingCards, setCurrentExecutingCards] = useState<Card[]>([]);
+  const [currentExecutingIndex, setCurrentExecutingIndex] = useState(0);
+  const [selectedNegativeCards, setSelectedNegativeCards] = useState<Card[]>([]);
+  
+  // テストオーバーレイ用の状態
+  const [showTestOverlay, setShowTestOverlay] = useState(false);
 
   const commonNames = [
     '太郎', '花子', '一郎', '美咲', '健太',
@@ -67,30 +91,126 @@ const EccentricLifeGame: React.FC = () => {
   // ポジティブカードの選択/選択解除
   const togglePositiveCard = (card: Card) => {
     if (selectedPositiveCards.some(c => c.id === card.id)) {
-      setSelectedPositiveCards(selectedPositiveCards.filter(c => c.id !== card.id));
+      const newCards = selectedPositiveCards.filter(c => c.id !== card.id);
+      setSelectedPositiveCards(newCards);
     } else {
-      setSelectedPositiveCards([...selectedPositiveCards, card]);
+      const newCards = [...selectedPositiveCards, card];
+      setSelectedPositiveCards(newCards);
     }
   };
 
   // カードを実行
   const executeCards = () => {
     if (selectedPositiveCards.length === 0) {
-      alert('最低1枚のポジティブカードを選択してください');
       return;
     }
 
     if (!drawnCards) return;
 
-    const result = gameEngine.selectCards(selectedPositiveCards, drawnCards.negativeCards);
-    setGameState(gameEngine.getState());
-    setLastCardResult(result);
+    // 選択したポジティブカードと同じ枚数のネガティブカードをランダムで選択
+    const shuffledNegativeCards = [...drawnCards.negativeCards].sort(() => Math.random() - 0.5);
+    const randomSelectedNegativeCards = shuffledNegativeCards.slice(0, selectedPositiveCards.length);
+    
+    // 選択したネガティブカードを状態に保存
+    setSelectedNegativeCards(randomSelectedNegativeCards);
+    
+    // 実行するカードの順序（ポジティブ → ネガティブ）
+    const allCards = [...selectedPositiveCards, ...randomSelectedNegativeCards];
+    
+    // 実行カードを設定して最初のカードから開始
+    setCurrentExecutingCards(allCards);
+    setCurrentExecutingIndex(0);
+    executeNextCard(allCards, 0);
+  };
 
-    if (result.isGameOver) {
-      setCurrentScreen(GameScreen.GAME_OVER);
-    } else {
-      setCurrentScreen(GameScreen.CARD_EFFECT);
+  // カードを一枚ずつ実行
+  const executeNextCard = (allCards: Card[], cardIndex: number) => {
+    if (cardIndex >= allCards.length) {
+      // 全カード実行完了
+      finishCardExecution();
+      return;
     }
+
+    const currentCard = allCards[cardIndex];
+    
+    // 実行前の状態を記録
+    const statusBefore = { ...gameEngine.getState().status };
+    
+    // カード効果を実際に適用してシミュレート
+    const statusAfter = { ...statusBefore };
+    if (currentCard.effect.statusChange) {
+      if (currentCard.effect.statusChange.wealth) {
+        statusAfter.wealth += currentCard.effect.statusChange.wealth;
+      }
+      if (currentCard.effect.statusChange.trust) {
+        statusAfter.trust += currentCard.effect.statusChange.trust;
+      }
+      if (currentCard.effect.statusChange.ability) {
+        statusAfter.ability += currentCard.effect.statusChange.ability;
+      }
+      if (currentCard.effect.statusChange.age) {
+        statusAfter.age += currentCard.effect.statusChange.age;
+      }
+    }
+    // 毎ターン年齢+1（最後のカードの時のみ）
+    if (cardIndex === allCards.length - 1) {
+      statusAfter.age += 1;
+    }
+
+    // 詳細を設定
+    const newDetail: CardExecutionDetail = {
+      card: currentCard,
+      statusBefore,
+      statusAfter
+    };
+
+    setCardExecutionDetails([newDetail]);
+    setCurrentCardIndex(0);
+    setCurrentExecutingIndex(cardIndex);
+    setIsShowingCardExecution(true);
+  };
+
+  // カード実行完了処理
+  const finishCardExecution = () => {
+    // 実際のゲームエンジンでカード実行
+    if (drawnCards) {
+      const result = gameEngine.selectCards(selectedPositiveCards, selectedNegativeCards);
+      setGameState(gameEngine.getState());
+      setLastCardResult(result);
+
+      if (result.isGameOver) {
+        setCurrentScreen(GameScreen.GAME_OVER);
+        return;
+      }
+    }
+
+    // リセットして次のターンへ
+    setIsShowingCardExecution(false);
+    setCardExecutionDetails([]);
+    setCurrentExecutingCards([]);
+    setCurrentExecutingIndex(0);
+    setSelectedNegativeCards([]);
+    nextTurn();
+  };
+
+  // オーバーレイで次のカードに進む
+  const handleNextCard = () => {
+    // 次のカードを実行
+    const nextIndex = currentExecutingIndex + 1;
+    if (nextIndex < currentExecutingCards.length) {
+      // 次のカードがある場合は、背景を戻さずに直接次のカードを実行
+      executeNextCard(currentExecutingCards, nextIndex);
+    } else {
+      // 全カード実行完了時のみ背景を戻す
+      setIsShowingCardExecution(false);
+      finishCardExecution();
+    }
+  };
+
+  // 残りのカードをスキップ
+  const handleSkipCards = () => {
+    setIsShowingCardExecution(false);
+    finishCardExecution();
   };
 
   // 次のターンへ
@@ -198,80 +318,24 @@ const EccentricLifeGame: React.FC = () => {
     </div>
   );
 
-  // ステータス変化差分表示コンポーネント
-  const StatusChangeSummary: React.FC<{ result: CardSelectionResult }> = ({ result }) => {
-    if (!result.statusChanges || result.statusChanges.length === 0) return null;
+  // 基本的なテスト（コンポーネント読み込み時に実行）
+  React.useEffect(() => {
+    // Component mounted
+  }, []);
 
-    // 変化量の合計を計算
-    const totalChanges = result.statusChanges.reduce((acc, change) => {
-      return {
-        wealth: (acc.wealth || 0) + (change.wealth || 0),
-        trust: (acc.trust || 0) + (change.trust || 0),
-        ability: (acc.ability || 0) + (change.ability || 0),
-        age: (acc.age || 0) + (change.age || 0),
-        wealthMultiplier: (change.wealthMultiplier && change.wealthMultiplier !== 1) 
-          ? (acc.wealthMultiplier || 1) * change.wealthMultiplier 
-          : (acc.wealthMultiplier || 1)
-      };
-    }, { wealth: 0, trust: 0, ability: 0, age: 0, wealthMultiplier: 1 });
-
-    const formatChange = (value: number, isMultiplier: boolean = false) => {
-      if (value === 0 || (isMultiplier && value === 1)) return null;
-      
-      if (isMultiplier) {
-        return value > 1 ? `×${value.toFixed(1)}` : `×${value.toFixed(1)}`;
-      }
-      
-      return value > 0 ? `+${Math.floor(value)}` : `${Math.floor(value)}`;
-    };
-
-    const getChangeColor = (value: number, isAge: boolean = false, isMultiplier: boolean = false) => {
-      if (value === 0 || (isMultiplier && value === 1)) return 'text-gray-400';
-      
-      if (isAge) {
-        return value > 0 ? 'text-red-400' : 'text-green-400'; // 年齢は増加が悪い
-      }
-      
-      return value > 0 ? 'text-green-400' : 'text-red-400';
-    };
-
-    return (
-      <div className="bg-black/60 border border-yellow-600 p-6 rounded-lg mb-6">
-        <h3 className="text-2xl font-bold mb-4 text-yellow-400 text-center">📊 ステータス変化</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center bg-gray-800 p-3 rounded border border-gray-600">
-            <div className="text-sm text-gray-300">資産</div>
-            <div className={`text-2xl font-bold ${getChangeColor(totalChanges.wealth || 0)}`}>
-              {formatChange(totalChanges.wealth || 0) || '±0'}
-            </div>
-            {totalChanges.wealthMultiplier && totalChanges.wealthMultiplier !== 1 && (
-              <div className={`text-lg font-bold ${getChangeColor(totalChanges.wealthMultiplier, false, true)}`}>
-                {formatChange(totalChanges.wealthMultiplier, true)}
-              </div>
-            )}
-          </div>
-          <div className="text-center bg-gray-800 p-3 rounded border border-gray-600">
-            <div className="text-sm text-gray-300">信用度</div>
-            <div className={`text-2xl font-bold ${getChangeColor(totalChanges.trust || 0)}`}>
-              {formatChange(totalChanges.trust || 0) || '±0'}
-            </div>
-          </div>
-          <div className="text-center bg-gray-800 p-3 rounded border border-gray-600">
-            <div className="text-sm text-gray-300">能力</div>
-            <div className={`text-2xl font-bold ${getChangeColor(totalChanges.ability || 0)}`}>
-              {formatChange(totalChanges.ability || 0) || '±0'}
-            </div>
-          </div>
-          <div className="text-center bg-gray-800 p-3 rounded border border-gray-600">
-            <div className="text-sm text-gray-300">年齢</div>
-            <div className={`text-2xl font-bold ${getChangeColor(totalChanges.age || 0, true)}`}>
-              {formatChange(totalChanges.age || 0) || '±0'}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  // 状態変化を監視  
+  React.useEffect(() => {
+    // Selected cards changed
+  }, [selectedPositiveCards]);
+  
+  // オーバーレイ状態の変化を監視
+  React.useEffect(() => {
+    // Overlay state changed
+  }, [isShowingCardExecution]);
+  
+  React.useEffect(() => {
+    // Card execution details changed
+  }, [cardExecutionDetails]);
 
   // ホーム画面
   if (currentScreen === GameScreen.HOME) {
@@ -312,16 +376,19 @@ const EccentricLifeGame: React.FC = () => {
         <div className="max-w-md mx-auto px-4 py-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-red-400">運命の初期化</h2>
           <div className="bg-gray-900 border border-gray-700 p-6 rounded-lg shadow-2xl">
-            <label className="block text-lg font-medium text-gray-300 mb-4">
+            <label htmlFor="player-name" className="block text-lg font-medium text-gray-300 mb-4">
               🏷️ プレイヤー名
             </label>
             <input
+              id="player-name"
+              name="playerName"
               type="text"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
               className="w-full p-4 bg-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-white text-lg"
               placeholder="あなたの名前を入力してください"
               maxLength={20}
+              autoComplete="name"
             />
             <p className="text-sm text-gray-400 mt-3 mb-6">
               🎲 初期資産や才能をガチャで決めましょう！
@@ -393,12 +460,17 @@ const EccentricLifeGame: React.FC = () => {
               {/* 操作ボタン */}
               <div className="text-center space-y-4">
                 <button
-                  onClick={executeCards}
+                  onClick={() => executeCards()}
                   disabled={selectedPositiveCards.length === 0}
                   className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-8 rounded-lg text-lg transform hover:scale-105 transition-all shadow-2xl"
+                  style={{
+                    opacity: selectedPositiveCards.length === 0 ? 0.5 : 1,
+                    cursor: selectedPositiveCards.length === 0 ? 'not-allowed' : 'pointer'
+                  }}
                 >
                   ⚡ {selectedPositiveCards.length}枚の行動とリスクを実行
                 </button>
+                
                 <button
                   onClick={commitSuicide}
                   className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-4 px-8 rounded-lg text-lg transform hover:scale-105 transition-all shadow-2xl"
@@ -409,65 +481,17 @@ const EccentricLifeGame: React.FC = () => {
             </>
           )}
         </div>
-      </div>
-    );
-  }
 
-  // カード効果実行画面
-  if (currentScreen === GameScreen.CARD_EFFECT) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <div className="max-w-md mx-auto px-4 py-6">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-yellow-400">⚡ 運命の審判 ⚡</h2>
-          
-          <StatusDisplay gameState={gameState} />
-
-          {/* ステータス変化差分表示 */}
-          {lastCardResult && <StatusChangeSummary result={lastCardResult} />}
-
-          {/* 自動選択されたネガティブカード */}
-          <div className="mb-8">
-            <h3 className="text-2xl font-bold mb-4 text-red-400 text-center">
-              💀 リスク
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              {gameState.selectedNegativeCards.map((card, index) => (
-                <CardComponent
-                  key={`selected_negative_${card.id}_${index}`}
-                  card={card}
-                  isPositive={false}
-                  disabled={true}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* 選択されたポジティブカード */}
-          <div className="mb-8">
-            <h3 className="text-2xl font-bold mb-4 text-green-400 text-center">
-              アクト
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              {gameState.selectedPositiveCards.map((card) => (
-                <CardComponent
-                  key={card.id}
-                  card={card}
-                  isPositive={true}
-                  disabled={true}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="text-center">
-            <button
-              onClick={nextTurn}
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-4 px-8 rounded-lg text-xl transform hover:scale-105 transition-all shadow-2xl"
-            >
-              🔮 次の運命へ
-            </button>
-          </div>
-        </div>
+        {/* オーバーレイ表示 */}
+        {isShowingCardExecution && cardExecutionDetails.length > 0 && (
+          <CardExecutionOverlay
+            detail={cardExecutionDetails[0]}
+            onNext={handleNextCard}
+            onSkip={handleSkipCards}
+            currentIndex={currentExecutingIndex}
+            totalCards={currentExecutingCards.length}
+          />
+        )}
       </div>
     );
   }

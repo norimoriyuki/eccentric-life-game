@@ -3,8 +3,12 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'エキセントリック人生ゲーム',
-  description: 'リアル人生ゲーム - 資産、信用、能力、年齢のステータスでサバイバル',
+  description: 'エキセントリック人生ゲーム - 資産、信用、能力、年齢のステータスでサバイバル',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/icon-192x192.png',
+    apple: '/icon-192x192.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -39,14 +43,26 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              if ('serviceWorker' in navigator) {
+              // 開発環境ではService Workerを無効化
+              if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+                console.log('Development mode: Service Worker disabled');
+                // 既存のService Workerを削除
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                      registration.unregister();
+                      console.log('ServiceWorker unregistered');
+                    }
+                  });
+                }
+              } else if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/sw.js')
                     .then(function(registration) {
-                      console.log('SW registered: ', registration);
+                      console.log('ServiceWorker registration successful');
                     })
-                    .catch(function(registrationError) {
-                      console.log('SW registration failed: ', registrationError);
+                    .catch(function(err) {
+                      console.log('ServiceWorker registration failed: ', err);
                     });
                 });
               }

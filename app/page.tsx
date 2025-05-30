@@ -28,23 +28,15 @@ const EccentricLifeGame: React.FC = () => {
   const [playerName, setPlayerName] = useState('');
   const [drawnCards, setDrawnCards] = useState<CardDrawResult | null>(null);
   const [selectedPositiveCards, setSelectedPositiveCards] = useState<Card[]>([]);
-  const [lastCardResult, setLastCardResult] = useState<CardSelectionResult | null>(null);
   
   // カード実行オーバーレイ用の状態
   const [isShowingCardExecution, setIsShowingCardExecution] = useState(false);
   const [cardExecutionDetails, setCardExecutionDetails] = useState<CardExecutionDetail[]>([]);
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  
-  // テスト用カウンター
-  const [testCounter, setTestCounter] = useState(0);
 
   // カードを一枚ずつ実行するシステム
   const [currentExecutingCards, setCurrentExecutingCards] = useState<Card[]>([]);
   const [currentExecutingIndex, setCurrentExecutingIndex] = useState(0);
   const [selectedNegativeCards, setSelectedNegativeCards] = useState<Card[]>([]);
-  
-  // テストオーバーレイ用の状態
-  const [showTestOverlay, setShowTestOverlay] = useState(false);
 
   const commonNames = [
     '太郎', '花子', '一郎', '美咲', '健太',
@@ -165,7 +157,6 @@ const EccentricLifeGame: React.FC = () => {
     };
 
     setCardExecutionDetails([newDetail]);
-    setCurrentCardIndex(0);
     setCurrentExecutingIndex(cardIndex);
     setIsShowingCardExecution(true);
   };
@@ -176,7 +167,6 @@ const EccentricLifeGame: React.FC = () => {
     if (drawnCards) {
       const result = gameEngine.selectCards(selectedPositiveCards, selectedNegativeCards);
       setGameState(gameEngine.getState());
-      setLastCardResult(result);
 
       if (result.isGameOver) {
         setCurrentScreen(GameScreen.GAME_OVER);
@@ -221,7 +211,6 @@ const EccentricLifeGame: React.FC = () => {
       setCurrentScreen(GameScreen.GAME_OVER);
     } else {
       drawNewCards();
-      setLastCardResult(null);
       setCurrentScreen(GameScreen.MAIN);
     }
   };
@@ -233,7 +222,6 @@ const EccentricLifeGame: React.FC = () => {
     setPlayerName('');
     setDrawnCards(null);
     setSelectedPositiveCards([]);
-    setLastCardResult(null);
     setCurrentScreen(GameScreen.HOME);
   };
 
@@ -317,25 +305,6 @@ const EccentricLifeGame: React.FC = () => {
       )}
     </div>
   );
-
-  // 基本的なテスト（コンポーネント読み込み時に実行）
-  React.useEffect(() => {
-    // Component mounted
-  }, []);
-
-  // 状態変化を監視  
-  React.useEffect(() => {
-    // Selected cards changed
-  }, [selectedPositiveCards]);
-  
-  // オーバーレイ状態の変化を監視
-  React.useEffect(() => {
-    // Overlay state changed
-  }, [isShowingCardExecution]);
-  
-  React.useEffect(() => {
-    // Card execution details changed
-  }, [cardExecutionDetails]);
 
   // ホーム画面
   if (currentScreen === GameScreen.HOME) {

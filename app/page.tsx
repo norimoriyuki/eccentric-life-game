@@ -100,6 +100,15 @@ const EccentricLifeGame: React.FC = () => {
     setCurrentScreen(GameScreen.HOME);
   };
 
+  // 自殺（即ゲームオーバー）
+  const commitSuicide = () => {
+    // ゲーム状態を強制的にゲームオーバーに設定
+    gameEngine.getState().isGameOver = true;
+    gameEngine.getState().gameOverReason = 'suicide' as any; // 自殺を理由として設定
+    setGameState(gameEngine.getState());
+    setCurrentScreen(GameScreen.GAME_OVER);
+  };
+
   // ステータス表示コンポーネント
   const StatusDisplay: React.FC<{ gameState: GameState }> = ({ gameState }) => (
     <div className="bg-gray-900 border border-gray-700 p-6 rounded-lg mb-6 shadow-xl">
@@ -372,10 +381,10 @@ const EccentricLifeGame: React.FC = () => {
                   ⚡ 運命を実行
                 </button>
                 <button
-                  onClick={resetGame}
-                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-10 rounded-lg text-xl transform hover:scale-105 transition-all shadow-2xl"
+                  onClick={commitSuicide}
+                  className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-4 px-10 rounded-lg text-xl transform hover:scale-105 transition-all shadow-2xl"
                 >
-                  💀 諦める
+                  💀 自殺する
                 </button>
               </div>
 
@@ -460,7 +469,8 @@ const EccentricLifeGame: React.FC = () => {
       'assassination': '暗殺された',
       'alien_abduction': 'エイリアンに解剖された',
       'dimension_sucked': '異次元に吸い込まれた',
-      'blackhole': 'ブラックホールに呑まれた'
+      'blackhole': 'ブラックホールに呑まれた',
+      'suicide': '自ら命を絶った'
     };
 
     return (

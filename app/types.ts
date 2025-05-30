@@ -28,6 +28,7 @@ export enum GameOverReason {
   ALIEN_ABDUCTION = 'alien_abduction', // エイリアンに解剖される
   DIMENSION_SUCKED = 'dimension_sucked', // 異次元に吸い込まれる
   BLACKHOLE = 'blackhole', // ブラックホール
+  SUICIDE = 'suicide', // 自殺
   // 他のゲームオーバー理由も追加可能
 }
 

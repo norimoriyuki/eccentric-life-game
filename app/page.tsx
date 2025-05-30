@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { GameEngine } from './game-engine';
-import { GameState, Card, CardDrawResult, CardSelectionResult } from './types';
+import { GameState, Card, CardDrawResult, CardSelectionResult, GameOverReason } from './types';
 
 // ゲーム画面の種類
 enum GameScreen {
@@ -22,8 +22,25 @@ const EccentricLifeGame: React.FC = () => {
   const [selectedPositiveCards, setSelectedPositiveCards] = useState<Card[]>([]);
   const [lastCardResult, setLastCardResult] = useState<CardSelectionResult | null>(null);
 
+  const commonNames = [
+    '太郎', '花子', '一郎', '美咲', '健太',
+    '由美', '大輔', '彩', '翔', '麻衣',
+    '慶太', '雅子', '貴史', '麗華', '優介',
+    '美樹', '章吾', '優香', '雅人', '千尋',
+    '龍之介', '千代姫', '鳳凰', '紫苑', '刀牙',
+    '桜花', '雷神', '月華', '炎皇', '雪姫',
+    '黄熊', '煉獄散', '勇心炎丸', '心眼衣斗', '姫煌々',
+    '紗音瑠', '愛羅武勇', '魔法娘娘', '火星親友', '宝冠黄金大王'
+  ];
+
+  // ランダムな名前を生成
+  const getRandomName = () => {
+    return commonNames[Math.floor(Math.random() * commonNames.length)];
+  };
+
   // ゲーム開始
   const startNewGame = () => {
+    setPlayerName(getRandomName()); // ランダムな名前をデフォルト値として設定
     setCurrentScreen(GameScreen.INIT);
   };
 
@@ -104,43 +121,43 @@ const EccentricLifeGame: React.FC = () => {
   const commitSuicide = () => {
     // ゲーム状態を強制的にゲームオーバーに設定
     gameEngine.getState().isGameOver = true;
-    gameEngine.getState().gameOverReason = 'suicide' as any; // 自殺を理由として設定
+    gameEngine.getState().gameOverReason = GameOverReason.SUICIDE; // 自殺を理由として設定
     setGameState(gameEngine.getState());
     setCurrentScreen(GameScreen.GAME_OVER);
   };
 
   // ステータス表示コンポーネント
   const StatusDisplay: React.FC<{ gameState: GameState }> = ({ gameState }) => (
-    <div className="bg-gray-900 border border-gray-700 p-6 rounded-lg mb-6 shadow-xl">
-      <h2 className="text-2xl font-bold mb-4 text-red-400">{gameState.playerName} さんの人生状況</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div className="bg-gray-900 border border-gray-700 p-4 rounded-lg mb-6 shadow-xl">
+      <h2 className="text-xl md:text-2xl font-bold mb-4 text-red-400 text-center">{gameState.playerName} さんの人生状況</h2>
+      <div className="grid grid-cols-2 gap-3">
         <div className="text-center bg-gray-800 p-3 rounded border border-gray-600">
-          <div className={`text-3xl font-bold ${gameState.status.wealth >= 0 ? 'text-green-400' : 'text-red-500'}`}>
+          <div className={`text-xl md:text-2xl font-bold ${gameState.status.wealth >= 0 ? 'text-green-400' : 'text-red-500'}`}>
             {gameState.status.wealth >= 0 ? '¥' : '-¥'}{Math.abs(Math.floor(gameState.status.wealth))}万
           </div>
-          <div className="text-sm text-gray-300">
+          <div className="text-xs text-gray-300">
             資産{gameState.status.wealth < 0 ? '（借金）' : ''}
           </div>
         </div>
         <div className="text-center bg-gray-800 p-3 rounded border border-gray-600">
-          <div className={`text-3xl font-bold ${gameState.status.trust >= 0 ? 'text-blue-400' : 'text-red-500'}`}>
+          <div className={`text-xl md:text-2xl font-bold ${gameState.status.trust >= 0 ? 'text-blue-400' : 'text-red-500'}`}>
             {gameState.status.trust}
           </div>
-          <div className="text-sm text-gray-300">
+          <div className="text-xs text-gray-300">
             信用度{gameState.status.trust < 0 ? '（悪評）' : ''}
           </div>
         </div>
         <div className="text-center bg-gray-800 p-3 rounded border border-gray-600">
-          <div className="text-3xl font-bold text-purple-400">{gameState.status.ability}</div>
-          <div className="text-sm text-gray-300">能力</div>
+          <div className="text-xl md:text-2xl font-bold text-purple-400">{gameState.status.ability}</div>
+          <div className="text-xs text-gray-300">能力</div>
         </div>
         <div className="text-center bg-gray-800 p-3 rounded border border-gray-600">
-          <div className="text-3xl font-bold text-orange-400">{gameState.status.age}歳</div>
-          <div className="text-sm text-gray-300">年齢</div>
+          <div className="text-xl md:text-2xl font-bold text-orange-400">{gameState.status.age}歳</div>
+          <div className="text-xs text-gray-300">年齢</div>
         </div>
       </div>
       <div className="mt-4 text-center text-gray-300">
-        <span className="bg-gray-800 px-3 py-1 rounded border border-gray-600">
+        <span className="bg-gray-800 px-3 py-1 rounded border border-gray-600 text-sm">
           ターン: {gameState.turn} | 生存中...
         </span>
       </div>
@@ -259,26 +276,28 @@ const EccentricLifeGame: React.FC = () => {
   // ホーム画面
   if (currentScreen === GameScreen.HOME) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-8">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-7xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-yellow-400 to-red-400 drop-shadow-2xl">
-            💀 エキセントリック人生ゲーム 💀
-          </h1>
-          <p className="text-2xl mb-8 text-gray-300 font-medium">
-            リアル人生ゲーム - 資産、信用、能力、年齢を管理して生き抜け！
-          </p>
-          <div className="space-y-6">
-            <button
-              onClick={startNewGame}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-10 rounded-lg text-2xl shadow-2xl transform hover:scale-105 transition-all border border-red-500"
-            >
-              🎲 人生ガチャ開始
-            </button>
-            <div className="space-y-3 text-sm text-gray-400 max-w-lg mx-auto bg-black/30 p-6 rounded-lg border border-gray-700">
-              <p className="text-red-400 font-semibold">⚠️ このゲームにはエキセントリックで不謹慎な内容が含まれています</p>
-              <p className="text-yellow-400">💡 ポジティブカードを選ぶと同数のネガティブカードも選ばれます</p>
-              <p className="text-blue-400">🎯 リスクとリターンのバランスを考えて選択しましょう</p>
-              <p className="text-purple-400">💀 死は常に隣り合わせ...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="max-w-md mx-auto px-4 py-8 md:py-16">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-yellow-400 to-red-400 drop-shadow-2xl leading-tight">
+              💀 エキセントリック人生ゲーム 💀
+            </h1>
+            <p className="text-lg md:text-xl mb-8 text-gray-300 font-medium px-2">
+              リアル人生ゲーム - 資産、信用、能力、年齢を管理して生き抜け！
+            </p>
+            <div className="space-y-6">
+              <button
+                onClick={startNewGame}
+                className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-8 rounded-lg text-xl shadow-2xl transform hover:scale-105 transition-all border border-red-500"
+              >
+                🎲 人生ガチャ開始
+              </button>
+              <div className="space-y-3 text-sm text-gray-400 bg-black/30 p-4 rounded-lg border border-gray-700">
+                <p className="text-red-400 font-semibold">⚠️ このゲームにはエキセントリックで不謹慎な内容が含まれています</p>
+                <p className="text-yellow-400">💡 ポジティブカードを選ぶと同数のネガティブカードも選ばれます</p>
+                <p className="text-blue-400">🎯 リスクとリターンのバランスを考えて選択しましょう</p>
+                <p className="text-purple-400">💀 死は常に隣り合わせ...</p>
+              </div>
             </div>
           </div>
         </div>
@@ -289,10 +308,10 @@ const EccentricLifeGame: React.FC = () => {
   // ゲーム初期化画面
   if (currentScreen === GameScreen.INIT) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-8">
-        <div className="max-w-md mx-auto">
-          <h2 className="text-4xl font-bold mb-8 text-center text-red-400">運命の初期化</h2>
-          <div className="bg-gray-900 border border-gray-700 p-8 rounded-lg shadow-2xl">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="max-w-md mx-auto px-4 py-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-red-400">運命の初期化</h2>
+          <div className="bg-gray-900 border border-gray-700 p-6 rounded-lg shadow-2xl">
             <label className="block text-lg font-medium text-gray-300 mb-4">
               🏷️ プレイヤー名
             </label>
@@ -305,18 +324,18 @@ const EccentricLifeGame: React.FC = () => {
               maxLength={20}
             />
             <p className="text-sm text-gray-400 mt-3 mb-6">
-              🎲 出生はガチャです
+              🎲 初期資産や才能をガチャで決めましょう！
             </p>
-            <div className="flex space-x-4">
+            <div className="flex flex-col space-y-3">
               <button
                 onClick={initializeGame}
-                className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-6 rounded-lg transform hover:scale-105 transition-all"
+                className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-6 rounded-lg transform hover:scale-105 transition-all"
               >
                 🌪️ 人生をはじめる
               </button>
               <button
                 onClick={() => setCurrentScreen(GameScreen.HOME)}
-                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg transform hover:scale-105 transition-all border border-gray-600"
+                className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg transform hover:scale-105 transition-all border border-gray-600"
               >
                 🏃 逃げる
               </button>
@@ -330,18 +349,35 @@ const EccentricLifeGame: React.FC = () => {
   // メインゲーム画面
   if (currentScreen === GameScreen.MAIN) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4">
-        <div className="max-w-7xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="max-w-md mx-auto px-4 py-6">
           <StatusDisplay gameState={gameState} />
 
           {drawnCards && (
             <>
+              {/* ネガティブカード */}
+              <div className="mb-8">
+                <h5 className="text-2xl md:text-3xl font-bold mb-4 text-red-400 text-center">
+                  ランダムにリスクが選ばれる
+                </h5>
+                <div className="grid grid-cols-2 gap-3">
+                  {drawnCards.negativeCards.map((card, index) => (
+                    <CardComponent
+                      key={`negative_${card.id}_${index}`}
+                      card={card}
+                      isPositive={false}
+                      disabled={true}
+                    />
+                  ))}
+                </div>
+              </div>
+
               {/* ポジティブカード */}
               <div className="mb-8">
-                <h3 className="text-3xl font-bold mb-6 text-green-400 text-center">
-                  💰 リターン（選択してください）
-                </h3>
-                <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
+                <h5 className="text-2xl md:text-3xl font-bold mb-4 text-green-400 text-center">
+                  行動を選択
+                </h5>
+                <div className="grid grid-cols-2 gap-3">
                   {drawnCards.positiveCards.map((card, index) => (
                     <CardComponent
                       key={`positive_${card.id}_${index}`}
@@ -354,46 +390,22 @@ const EccentricLifeGame: React.FC = () => {
                 </div>
               </div>
 
-              {/* ネガティブカード */}
-              <div className="mb-8">
-                <h3 className="text-3xl font-bold mb-6 text-red-400 text-center">
-                  💀 運命の報復（自動選択される）
-                </h3>
-                <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
-                  {drawnCards.negativeCards.map((card, index) => (
-                    <CardComponent
-                      key={`negative_${card.id}_${index}`}
-                      card={card}
-                      isPositive={false}
-                      disabled={true}
-                    />
-                  ))}
-                </div>
-              </div>
-
               {/* 操作ボタン */}
-              <div className="text-center space-x-6">
+              <div className="text-center space-y-4">
                 <button
                   onClick={executeCards}
                   disabled={selectedPositiveCards.length === 0}
-                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-10 rounded-lg text-xl transform hover:scale-105 transition-all shadow-2xl"
+                  className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-8 rounded-lg text-lg transform hover:scale-105 transition-all shadow-2xl"
                 >
-                  ⚡ 運命を実行
+                  ⚡ {selectedPositiveCards.length}枚の行動とリスクを実行
                 </button>
                 <button
                   onClick={commitSuicide}
-                  className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-4 px-10 rounded-lg text-xl transform hover:scale-105 transition-all shadow-2xl"
+                  className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-4 px-8 rounded-lg text-lg transform hover:scale-105 transition-all shadow-2xl"
                 >
-                  💀 自殺する
+                  💀 自殺
                 </button>
               </div>
-
-              {selectedPositiveCards.length > 0 && (
-                <p className="text-center mt-6 text-lg text-yellow-400 bg-black/30 p-4 rounded-lg border border-yellow-600 max-w-2xl mx-auto">
-                  🎯 選択中: {selectedPositiveCards.length}枚
-                  → {selectedPositiveCards.length}枚の報復が自動選択されます
-                </p>
-              )}
             </>
           )}
         </div>
@@ -404,55 +416,53 @@ const EccentricLifeGame: React.FC = () => {
   // カード効果実行画面
   if (currentScreen === GameScreen.CARD_EFFECT) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold mb-8 text-center text-yellow-400">⚡ 運命の審判 ⚡</h2>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="max-w-md mx-auto px-4 py-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-yellow-400">⚡ 運命の審判 ⚡</h2>
           
           <StatusDisplay gameState={gameState} />
 
           {/* ステータス変化差分表示 */}
           {lastCardResult && <StatusChangeSummary result={lastCardResult} />}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-            {/* 選択されたポジティブカード */}
-            <div>
-              <h3 className="text-2xl font-bold mb-6 text-green-400 text-center">
-                💰 リターン
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {gameState.selectedPositiveCards.map((card) => (
-                  <CardComponent
-                    key={card.id}
-                    card={card}
-                    isPositive={true}
-                    disabled={true}
-                  />
-                ))}
-              </div>
+          {/* 自動選択されたネガティブカード */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold mb-4 text-red-400 text-center">
+              💀 リスク
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {gameState.selectedNegativeCards.map((card, index) => (
+                <CardComponent
+                  key={`selected_negative_${card.id}_${index}`}
+                  card={card}
+                  isPositive={false}
+                  disabled={true}
+                />
+              ))}
             </div>
+          </div>
 
-            {/* 自動選択されたネガティブカード */}
-            <div>
-              <h3 className="text-2xl font-bold mb-6 text-red-400 text-center">
-                💀 リスク
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {gameState.selectedNegativeCards.map((card, index) => (
-                  <CardComponent
-                    key={`selected_negative_${card.id}_${index}`}
-                    card={card}
-                    isPositive={false}
-                    disabled={true}
-                  />
-                ))}
-              </div>
+          {/* 選択されたポジティブカード */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold mb-4 text-green-400 text-center">
+              アクト
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {gameState.selectedPositiveCards.map((card) => (
+                <CardComponent
+                  key={card.id}
+                  card={card}
+                  isPositive={true}
+                  disabled={true}
+                />
+              ))}
             </div>
           </div>
 
           <div className="text-center">
             <button
               onClick={nextTurn}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-4 px-12 rounded-lg text-xl transform hover:scale-105 transition-all shadow-2xl"
+              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-4 px-8 rounded-lg text-xl transform hover:scale-105 transition-all shadow-2xl"
             >
               🔮 次の運命へ
             </button>
@@ -465,53 +475,46 @@ const EccentricLifeGame: React.FC = () => {
   // ゲームオーバー画面
   if (currentScreen === GameScreen.GAME_OVER) {
     const deathReasonMap: Record<string, string> = {
-      'old_age': '老衰で朽ち果てた',
-      'assassination': '暗殺された',
-      'alien_abduction': 'エイリアンに解剖された',
-      'dimension_sucked': '異次元に吸い込まれた',
-      'blackhole': 'ブラックホールに呑まれた',
-      'suicide': '自ら命を絶った'
+      [GameOverReason.OLD_AGE]: '老衰で朽ち果てた',
+      [GameOverReason.ASSASSINATION]: '暗殺された',
+      [GameOverReason.ALIEN_ABDUCTION]: 'エイリアンに解剖された',
+      [GameOverReason.DIMENSION_SUCKED]: '異次元に吸い込まれた',
+      [GameOverReason.BLACKHOLE]: 'ブラックホールに呑まれた',
+      [GameOverReason.SUICIDE]: '自ら命を絶った'
     };
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-red-900 to-gray-900 p-8">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-6xl font-bold mb-8 text-red-400 animate-pulse drop-shadow-2xl">
-            💀 GAME OVER 💀
-          </h1>
-          
-          <div className="bg-gray-900 border-2 border-red-600 p-8 rounded-lg shadow-2xl mb-8">
-            <p className="text-3xl mb-6 text-red-300">
-              運命の審判: <span className="font-bold text-red-400 block mt-2">
-                {gameState.gameOverReason ? deathReasonMap[gameState.gameOverReason] || gameState.gameOverReason : '原因不明で消滅'}
-              </span>
-            </p>
+      <div className="min-h-screen bg-gradient-to-br from-black via-red-900 to-gray-900">
+        <div className="max-w-md mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-8 text-red-400 animate-pulse drop-shadow-2xl">
+              💀 GAME OVER 💀
+            </h1>
             
-            <StatusDisplay gameState={gameState} />
-            
-            <div className="text-2xl mb-6 bg-black/40 p-4 rounded border border-gray-700">
-              <p className="text-yellow-400">生存記録: <span className="font-bold text-white">{gameState.turn - 1} ターン</span></p>
-              <p className="text-gray-400 mt-2 text-lg">
-                {gameState.turn < 5 ? "あまりにも短い人生でした..." : 
-                 gameState.turn < 15 ? "そこそこ頑張りました" : 
-                 gameState.turn < 30 ? "なかなかの生存者です" : 
-                 "伝説の生存者です！"}
+            <div className="bg-gray-900 border-2 border-red-600 p-6 rounded-lg shadow-2xl mb-8">
+              <p className="text-2xl md:text-3xl mb-6 text-red-300">
+                運命の審判: <span className="font-bold text-red-400 block mt-2">
+                  {gameState.gameOverReason ? deathReasonMap[gameState.gameOverReason] || gameState.gameOverReason : '原因不明で消滅'}
+                </span>
               </p>
+              
+              <StatusDisplay gameState={gameState} />
+              
+              <div className="text-xl md:text-2xl mb-6 bg-black/40 p-4 rounded border border-gray-700">
+                <p className="text-yellow-400">生存記録: <span className="font-bold text-white">{gameState.turn - 1} ターン</span></p>
+                <p className="text-gray-400 mt-2 text-base md:text-lg">
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="space-x-6">
             <button
               onClick={resetGame}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-10 rounded-lg text-xl transform hover:scale-105 transition-all shadow-2xl"
+              className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-8 rounded-lg text-xl transform hover:scale-105 transition-all shadow-2xl"
             >
               🔄 再び人生を始める
             </button>
+            
           </div>
-          
-          <p className="mt-8 text-gray-400 text-lg">
-            💀 死は新たな始まりに過ぎない 💀
-          </p>
         </div>
       </div>
     );

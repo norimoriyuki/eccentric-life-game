@@ -1,0 +1,27 @@
+{
+  "name": "エキセントリック人生ゲーム",
+  "short_name": "人生ゲーム",
+  "description": "エキセントリック人生ゲーム - 資産、信用、能力、年齢を管理して生き抜け！",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#DC2626",
+  "orientation": "portrait",
+  "categories": ["games", "entertainment"],
+  "lang": "ja",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
+} 

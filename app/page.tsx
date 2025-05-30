@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { GameEngine } from './game-engine';
-import { GameState, Card, CardDrawResult, CardSelectionResult, GameOverReason, GameStatus } from './types';
+import { GameState, Card, CardDrawResult, GameOverReason, GameStatus } from './types';
 import { CardExecutionOverlay } from './components/CardExecutionOverlay';
 
 // ゲーム画面の種類

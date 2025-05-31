@@ -12,23 +12,23 @@ import {
 // ===============================
 
 export const positiveCards: Card[] = [
-  // 基本カード
   {
     id: 'labor',
-    name: '苦役',
+    name: '労働',
     type: CardType.POSITIVE,
-    description: '辛い労働で資産を得るが、年も取る',
+    description: '能力だけ稼ぐ。善良さ+5、能力+5',
     effect: {
       type: EffectType.STATUS_CHANGE,
       description: '資産+50万円、年齢+1歳',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
-        newStatus.wealth += 50;
-        newStatus.age += 1;
+        newStatus.wealth += status.ability;
+        newStatus.goodness += 5;
+        newStatus.ability += 5;
         
         return {
           newStatus,
-          description: '資産+50万円、年齢+1歳'
+          description: `資産+${status.ability}万円、善良さ+5、能力+5`
         };
       }
     },
@@ -66,7 +66,7 @@ export const positiveCards: Card[] = [
       description: '状態「複利」+1（資産が継続的に増加）',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
-        newStatus.複利 = (newStatus.複利 || 0) + 1;
+        newStatus.compound = (newStatus.compound || 0) + 1;
         
         return {
           newStatus,
@@ -162,10 +162,10 @@ export const positiveCards: Card[] = [
       description: '複利状態に応じた効果',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
-        const currentCompound = status.複利 || 0;
+        const currentCompound = status.compound || 0;
         
         if (currentCompound === 0) {
-          newStatus.複利 = 1;
+          newStatus.compound = 1;
           newStatus.ability += 5;
           
           return {
@@ -174,7 +174,7 @@ export const positiveCards: Card[] = [
           };
         } else {
           const bonusWealth = currentCompound * 50; // 複利レベル×50万円
-          newStatus.複利 += 1;
+          newStatus.compound += 1;
           newStatus.wealth += bonusWealth;
           
           return {
@@ -237,7 +237,7 @@ export const negativeCards: Card[] = [
       if (status.age > 50) {
         return 1 + (status.age - 50); // 50歳を超えると出現率上昇
       }
-      return 1; // 50歳以下は基本確率
+      return 0; // 50歳以下は基本確率
     }
   },
 
@@ -266,17 +266,17 @@ export const negativeCards: Card[] = [
     id: 'traffic_violation',
     name: '交通違反',
     type: CardType.NEGATIVE,
-    description: '罰金で資産が減る',
+    description: '罰金で資産-100万円',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '資産-500万円（重い罰金）',
+      description: '資産-100万円',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
-        newStatus.wealth -= 500;
+        newStatus.wealth -= 100;
         
         return {
           newStatus,
-          description: '資産-500万円（重い罰金）'
+          description: '資産-100万円'
         };
       }
     },
@@ -287,7 +287,7 @@ export const negativeCards: Card[] = [
     id: 'aging',
     name: '加齢',
     type: CardType.NEGATIVE,
-    description: '時の流れは止められない',
+    description: 'ひどく疲れて歳をとる',
     effect: {
       type: EffectType.STATUS_CHANGE,
       description: '年齢+2歳',
@@ -365,7 +365,7 @@ export const negativeCards: Card[] = [
         let description = '一般的な病気、能力-10、資産-50万円';
 
         // 複利状態があるとストレス病
-        if (status.複利 && status.複利 > 0) {
+        if (status.compound && status.compound > 0) {
           newStatus.ability -= 5; // 追加で-5（合計-15）
           newStatus.wealth -= 50; // 追加で-50（合計-100）
           newStatus.goodness -= 5;
@@ -401,6 +401,77 @@ export const negativeCards: Card[] = [
       }
     },
     baseAppearanceRate: 0.15
+  },
+
+  {
+    id: 'drug_addiction',
+    name: '薬物中毒',
+    type: CardType.NEGATIVE,
+    description: '薬物に手を出して中毒になる',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      description: '状態「薬中」+1（毎ターン追加老化）',
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.addiction = (newStatus.addiction || 0) + 1;
+        newStatus.goodness -= 15; // 善良さも下がる
+        newStatus.wealth -= 100; // 薬代で資産も減る
+        
+        return {
+          newStatus,
+          description: '状態「薬中」+1、善良さ-15、資産-100万円'
+        };
+      }
+    },
+    baseAppearanceRate: 1
+  },
+
+  {
+    id: 'heavy_drugs',
+    name: '危険薬物',
+    type: CardType.NEGATIVE,
+    description: 'より危険な薬物に手を出す',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      description: '薬中状態に応じた効果',
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const currentAddiction = status.addiction || 0;
+        
+        if (currentAddiction === 0) {
+          // 初回
+          newStatus.addiction = 2;
+          newStatus.goodness -= 20;
+          newStatus.wealth -= 200;
+          newStatus.ability -= 10;
+          
+          return {
+            newStatus,
+            description: '重度薬物中毒、状態「薬中」+2、善良さ-20、資産-200万円、能力-10'
+          };
+        } else {
+          // 既に薬中の場合はさらに悪化
+          newStatus.addiction += 1;
+          newStatus.goodness -= 10;
+          newStatus.wealth -= 150;
+          newStatus.ability -= 5;
+          
+          return {
+            newStatus,
+            description: `薬物中毒悪化、状態「薬中」+1（合計${newStatus.addiction}）、善良さ-10、資産-150万円、能力-5`
+          };
+        }
+      }
+    },
+    baseAppearanceRate: 0.1,
+    probabilityCalculator: (status) => {
+      // 既に薬中の場合は出現率が上がる
+      const addiction = status.addiction || 0;
+      if (addiction > 0) {
+        return 1 + addiction * 0.5; // 薬中レベル1につき1.5倍
+      }
+      return 1;
+    }
   },
 ];
 

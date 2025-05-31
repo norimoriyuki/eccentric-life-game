@@ -56,10 +56,15 @@ export class GameEngine {
       age: params.initialStatus.age ?? this.randomBetween(18, 60)
     } : {
       wealth: this.randomBetween(-500, 1000),
-      goodness: this.randomBetween(0, 100),
-      ability: this.randomBetween(0, 100),
+      goodness: this.randomBetween(-50, 100),
+      ability: this.randomBetween(0, 200),
       age: this.randomBetween(18, 60)
     };
+
+    // 50%の確率で仕送り状態を付与（1-40の範囲）
+    if (Math.random() < 0.5) {
+      initialStatus.allowance = this.randomBetween(1, 40);
+    }
 
     this.state = {
       playerName: params.playerName,
@@ -294,15 +299,56 @@ export class GameEngine {
     const newStatus = { ...status };
 
     // 複利効果の適用
-    if (newStatus.複利 && newStatus.複利 >= 1) {
-      const multiplier = 1 + (newStatus.複利 * 0.1); // 1なら1.1倍、2なら1.2倍
+    if (newStatus.compound && newStatus.compound >= 1) {
+      const multiplier = 1 + (newStatus.compound * 0.1); // 1なら1.1倍、2なら1.2倍
       newStatus.wealth *= multiplier;
+    }
+
+    // 薬中効果の適用
+    if (newStatus.addiction && newStatus.addiction >= 1) {
+      newStatus.age += newStatus.addiction; // 薬中レベル分だけ追加で年齢増加
+    }
+
+    // 仕送り効果の適用
+    if (newStatus.allowance && newStatus.allowance >= 1) {
+      newStatus.wealth += 30; // 資産+30万円
+      newStatus.allowance -= 1; // 仕送り-1
+      
+      // 仕送りが0になったら削除
+      if (newStatus.allowance <= 0) {
+        delete newStatus.allowance;
+      }
     }
 
     // 他の状態効果もここに追加可能
     // 例：「再生」状態なら能力回復など
 
     return newStatus;
+  }
+
+  /**
+   * カード効果を実行（新システム）
+   */
+  private executeCardEffect(
+    card: Card, 
+    currentStatus: GameStatus
+  ): CardEffectResult {
+    // 新しい関数ベース効果が定義されている場合はそれを使用
+    if (card.effect.execute) {
+      return card.effect.execute(currentStatus);
+    }
+
+    // フォールバック（基本的にはすべてのカードがexecuteを持つべき）
+    const result: CardEffectResult = {
+      description: card.effect.description
+    };
+
+    if (card.effect.type === EffectType.GAME_OVER) {
+      result.isGameOver = true;
+      result.gameOverReason = card.effect.gameOverReason;
+    }
+
+    return result;
   }
 
   /**
@@ -341,30 +387,5 @@ export class GameEngine {
       gameOverReason: this.state.gameOverReason,
       historyCount: this.state.history.length
     };
-  }
-
-  /**
-   * カード効果を実行（新システム）
-   */
-  private executeCardEffect(
-    card: Card, 
-    currentStatus: GameStatus
-  ): CardEffectResult {
-    // 新しい関数ベース効果が定義されている場合はそれを使用
-    if (card.effect.execute) {
-      return card.effect.execute(currentStatus);
-    }
-
-    // フォールバック（基本的にはすべてのカードがexecuteを持つべき）
-    const result: CardEffectResult = {
-      description: card.effect.description
-    };
-
-    if (card.effect.type === EffectType.GAME_OVER) {
-      result.isGameOver = true;
-      result.gameOverReason = card.effect.gameOverReason;
-    }
-
-    return result;
   }
 } 

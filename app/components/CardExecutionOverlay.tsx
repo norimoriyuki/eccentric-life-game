@@ -26,6 +26,16 @@ interface CardExecutionOverlayProps {
   totalCards: number;
 }
 
+// 状態名を日本語に変換する関数
+const getStateDisplayName = (stateName: string): string => {
+  const stateNameMap: Record<string, string> = {
+    'allowance': '仕送り',
+    'compound': '複利',
+    'addiction': '薬中'
+  };
+  return stateNameMap[stateName] || stateName;
+};
+
 export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({ 
   detail, 
   onNext, 
@@ -183,7 +193,7 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
                     key={stateName}
                     className="bg-purple-600 text-purple-100 px-2 py-1 rounded text-xs font-medium"
                   >
-                    {stateName} {value}
+                    {getStateDisplayName(stateName)} {value}
                   </span>
                 ))}
               {Object.entries(statusAfter)

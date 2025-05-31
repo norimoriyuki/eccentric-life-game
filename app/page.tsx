@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { GameEngine } from './game-engine';
 import { GameState, Card, CardDrawResult, GameOverReason, GameStatus } from './types';
 import { CardExecutionOverlay } from './components/CardExecutionOverlay';
@@ -155,7 +155,7 @@ const EccentricLifeGame: React.FC = () => {
   };
 
   // フェーズをプレビュー表示（実際の処理は既に完了済み）
-  const executePhasePreview = (phase: ExecutionPhase, positiveCards: Card[], negativeCards: Card[], statusBefore: GameStatus, statusAfter: GameStatus) => {
+  const executePhasePreview = (phase: ExecutionPhase, positiveCards: Card[], negativeCards: Card[], statusBefore: GameStatus, _statusAfter: GameStatus) => {
     let previewStatusBefore = { ...statusBefore };
     let previewStatusAfter = { ...statusBefore }; // 初期状態から計算開始
     const descriptions: string[] = [];

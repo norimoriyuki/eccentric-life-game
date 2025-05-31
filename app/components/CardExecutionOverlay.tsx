@@ -41,7 +41,7 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
   onNext, 
   onSkip, 
   currentIndex, 
-  totalCards 
+  totalCards: _totalCards 
 }) => {
   const { phase, phaseName, cards, statusBefore, statusAfter, descriptions } = detail;
   

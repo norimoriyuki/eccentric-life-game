@@ -60,6 +60,29 @@ export default function RootLayout({
                   navigator.serviceWorker.register('/sw.js')
                     .then(function(registration) {
                       console.log('ServiceWorker registration successful');
+                      
+                      // 更新チェック
+                      registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // 新しいバージョンが利用可能
+                            console.log('New version available! Reloading...');
+                            // 3秒後に自動リロード
+                            setTimeout(() => {
+                              newWorker.postMessage({ type: 'SKIP_WAITING' });
+                              window.location.reload();
+                            }, 3000);
+                          }
+                        });
+                      });
+                      
+                      // Service Workerの制御が変わったときにリロード
+                      navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        console.log('Controller changed, reloading...');
+                        window.location.reload();
+                      });
+                      
                     })
                     .catch(function(err) {
                       console.log('ServiceWorker registration failed: ', err);

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: '人生ゲーム',
+    title: 'エキ人',
   },
   other: {
     'mobile-web-app-capable': 'yes',

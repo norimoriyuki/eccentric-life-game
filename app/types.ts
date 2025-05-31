@@ -1,18 +1,16 @@
-// ゲームの基本ステータス
+// ゲームの基本ステータス（状態も含む）
 export interface GameStatus {
   wealth: number; // 資産（万円）
   trust: number; // 信用度（0-100）
   ability: number; // 能力（0-100）
   age: number; // 年齢
+  // 継続効果の状態（0以上の整数）
+  [stateName: string]: number; // 任意の状態名と値のペア
 }
 
-// ステータス変化の定義
-export interface StatusChange {
-  wealth?: number; // 変化量（正負）
-  wealthMultiplier?: number; // 乗算（1.1倍など）
-  trust?: number; // 変化量（正負）
-  ability?: number; // 変化量（正負）
-  age?: number; // 変化量（正負）
+// ゲームの状態（継続効果）
+export interface GameStates {
+  [stateName: string]: number; // 状態名と値のペア（0以上の整数）
 }
 
 // カードの種類
@@ -39,13 +37,29 @@ export enum EffectType {
   SPECIAL = 'special' // 特殊効果（復活能力など）
 }
 
+// カードの効果結果
+export interface CardEffectResult {
+  // 新しい統合ステータス
+  newStatus?: GameStatus;
+  // 共通
+  isGameOver?: boolean;
+  gameOverReason?: GameOverReason;
+  description: string;
+}
+
+// カード効果関数の型
+export type CardEffectFunction = (
+  currentStatus: GameStatus
+) => CardEffectResult;
+
 // カードの効果
 export interface CardEffect {
   type: EffectType;
-  statusChange?: StatusChange;
   gameOverReason?: GameOverReason;
   description: string; // 効果の説明文
   risks?: string[]; // 付随するリスク
+  // 関数ベース効果
+  execute?: CardEffectFunction; // カスタム効果処理関数
 }
 
 // 重み関数の種類
@@ -144,7 +158,7 @@ export interface Card {
 export interface GameState {
   playerId?: string; // プレイヤーID（将来の拡張用）
   playerName: string; // プレイヤー名
-  status: GameStatus; // 現在のステータス
+  status: GameStatus; // 現在のステータス（状態も含む）
   turn: number; // ターン数
   isGameOver: boolean; // ゲーム終了フラグ
   gameOverReason?: GameOverReason; // ゲーム終了理由
@@ -179,7 +193,6 @@ export interface GameInitParams {
 export interface CardSelectionResult {
   selectedPositiveCards: Card[];
   autoSelectedNegativeCards: Card[];
-  statusChanges: StatusChange[];
   newStatus: GameStatus;
   isGameOver: boolean;
   gameOverReason?: GameOverReason;

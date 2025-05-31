@@ -118,33 +118,19 @@ const EccentricLifeGame: React.FC = () => {
 
   // カードを一枚ずつ実行
   const executeNextCard = (allCards: Card[], cardIndex: number) => {
-    if (cardIndex >= allCards.length) {
-      // 全カード実行完了
-      finishCardExecution();
-      return;
-    }
-
     const currentCard = allCards[cardIndex];
-    
-    // 実行前の状態を記録
     const statusBefore = { ...gameEngine.getState().status };
     
     // カード効果を実際に適用してシミュレート
-    const statusAfter = { ...statusBefore };
-    if (currentCard.effect.statusChange) {
-      if (currentCard.effect.statusChange.wealth) {
-        statusAfter.wealth += currentCard.effect.statusChange.wealth;
-      }
-      if (currentCard.effect.statusChange.trust) {
-        statusAfter.trust += currentCard.effect.statusChange.trust;
-      }
-      if (currentCard.effect.statusChange.ability) {
-        statusAfter.ability += currentCard.effect.statusChange.ability;
-      }
-      if (currentCard.effect.statusChange.age) {
-        statusAfter.age += currentCard.effect.statusChange.age;
+    let statusAfter = { ...statusBefore };
+    
+    if (currentCard.effect.execute) {
+      const result = currentCard.effect.execute(statusBefore);
+      if (result.newStatus) {
+        statusAfter = { ...result.newStatus };
       }
     }
+    
     // 毎ターン年齢+1（最後のカードの時のみ）
     if (cardIndex === allCards.length - 1) {
       statusAfter.age += 1;
@@ -239,7 +225,7 @@ const EccentricLifeGame: React.FC = () => {
   const StatusDisplay: React.FC<{ gameState: GameState }> = ({ gameState }) => (
     <div className="bg-gray-900 border border-gray-700 p-3 rounded-lg mb-4 shadow-xl">
       <h2 className="text-lg font-bold mb-3 text-red-400 text-center">{gameState.playerName} さんの人生状況</h2>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-2 mb-3">
         <div className="text-center bg-gray-800 p-2 rounded border border-gray-600">
           <div className={`text-lg font-bold ${gameState.status.wealth >= 0 ? 'text-green-400' : 'text-red-500'}`}>
             {gameState.status.wealth >= 0 ? '¥' : '-¥'}{Math.abs(Math.floor(gameState.status.wealth))}万
@@ -261,7 +247,31 @@ const EccentricLifeGame: React.FC = () => {
           <div className="text-xs text-gray-300">年齢</div>
         </div>
       </div>
-      <div className="mt-3 text-center text-gray-300">
+      
+      {/* 状態表示 */}
+      {Object.entries(gameState.status).filter(([key, value]) => 
+        !['wealth', 'trust', 'ability', 'age'].includes(key) && typeof value === 'number' && value > 0
+      ).length > 0 && (
+        <div className="mb-3">
+          <div className="text-xs text-gray-400 mb-1">状態効果</div>
+          <div className="flex flex-wrap gap-1">
+            {Object.entries(gameState.status)
+              .filter(([key, value]) => 
+                !['wealth', 'trust', 'ability', 'age'].includes(key) && typeof value === 'number' && value > 0
+              )
+              .map(([stateName, value]) => (
+                <span
+                  key={stateName}
+                  className="bg-yellow-600 text-yellow-100 px-2 py-1 rounded text-xs font-medium"
+                >
+                  {stateName} {value}
+                </span>
+              ))}
+          </div>
+        </div>
+      )}
+      
+      <div className="text-center text-gray-300">
         <span className="bg-gray-800 px-2 py-1 rounded border border-gray-600 text-xs">
           ターン: {gameState.turn} | 生存中...
         </span>

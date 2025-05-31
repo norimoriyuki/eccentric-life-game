@@ -6,9 +6,9 @@ import {
   CardDrawResult, 
   CardSelectionResult,
   GameInitParams,
-  StatusChange,
   GameOverReason,
-  GameTurnHistory
+  GameTurnHistory,
+  CardEffectResult
 } from './types';
 import { positiveCards, negativeCards } from './cards';
 
@@ -218,33 +218,38 @@ export class GameEngine {
     );
 
     const allSelectedCards = [...positiveCards, ...autoSelectedNegativeCards];
-    const statusChanges: StatusChange[] = [];
+    const statusBefore = { ...this.state.status };
     let newStatus = { ...this.state.status };
     let isGameOver = false;
     let gameOverReason: GameOverReason | undefined;
 
     // カード効果を順番に適用
     for (const card of allSelectedCards) {
-      if (card.effect.type === EffectType.STATUS_CHANGE && card.effect.statusChange) {
-        const change = card.effect.statusChange;
-        statusChanges.push(change);
-        newStatus = this.applyStatusChange(newStatus, change);
-      } else if (card.effect.type === EffectType.GAME_OVER) {
+      const effectResult = this.executeCardEffect(card, newStatus);
+      
+      // 新しい統合ステータスシステム
+      if (effectResult.newStatus) {
+        newStatus = { ...effectResult.newStatus };
+      }
+      
+      if (effectResult.isGameOver) {
         isGameOver = true;
-        gameOverReason = card.effect.gameOverReason;
+        gameOverReason = effectResult.gameOverReason;
         break;
       } else if (card.effect.type === EffectType.SPECIAL) {
         // 特殊効果の処理（不老不死など）
-        // 今回は簡単な実装にとどめる
-        console.log(`特殊効果: ${card.effect.description}`);
+        console.log(`特殊効果: ${effectResult.description}`);
       }
+    }
+
+    // 状態による継続効果を適用（1以上の場合のみ）
+    if (!isGameOver) {
+      newStatus = this.applyStateEffects(newStatus);
     }
 
     // 毎ターン年齢を+1する（ゲームオーバーでない場合のみ）
     if (!isGameOver) {
-      const ageChange = { age: 1 };
-      statusChanges.push(ageChange);
-      newStatus = this.applyStatusChange(newStatus, ageChange);
+      newStatus = { ...newStatus, age: newStatus.age + 1 };
     }
 
     // ゲーム状態を更新
@@ -258,7 +263,7 @@ export class GameEngine {
     // 履歴に追加
     const history: GameTurnHistory = {
       turn: this.state.turn - 1,
-      statusBefore: this.state.status,
+      statusBefore,
       statusAfter: newStatus,
       selectedPositiveCards: positiveCards,
       selectedNegativeCards: autoSelectedNegativeCards,
@@ -269,7 +274,6 @@ export class GameEngine {
     return {
       selectedPositiveCards: positiveCards,
       autoSelectedNegativeCards,
-      statusChanges,
       newStatus,
       isGameOver,
       gameOverReason
@@ -284,34 +288,19 @@ export class GameEngine {
   }
 
   /**
-   * ステータス変化を適用
+   * 状態による継続効果を適用
    */
-  private applyStatusChange(status: GameStatus, change: StatusChange): GameStatus {
+  private applyStateEffects(status: GameStatus): GameStatus {
     const newStatus = { ...status };
 
-    // 加算処理
-    if (change.wealth !== undefined) {
-      newStatus.wealth += change.wealth;
-    }
-    if (change.trust !== undefined) {
-      newStatus.trust += change.trust;
-    }
-    if (change.ability !== undefined) {
-      newStatus.ability += change.ability;
-    }
-    if (change.age !== undefined) {
-      newStatus.age += change.age;
+    // 複利効果の適用
+    if (newStatus.複利 && newStatus.複利 >= 1) {
+      const multiplier = 1 + (newStatus.複利 * 0.1); // 1なら1.1倍、2なら1.2倍
+      newStatus.wealth *= multiplier;
     }
 
-    // 乗算処理
-    if (change.wealthMultiplier !== undefined) {
-      newStatus.wealth *= change.wealthMultiplier;
-    }
-
-    // 下限値の適用
-    // 資産と信用はマイナス値も許可、能力と年齢は0以上
-    newStatus.ability = Math.max(0, newStatus.ability);
-    newStatus.age = Math.max(0, newStatus.age);
+    // 他の状態効果もここに追加可能
+    // 例：「再生」状態なら能力回復など
 
     return newStatus;
   }
@@ -352,5 +341,30 @@ export class GameEngine {
       gameOverReason: this.state.gameOverReason,
       historyCount: this.state.history.length
     };
+  }
+
+  /**
+   * カード効果を実行（新システム）
+   */
+  private executeCardEffect(
+    card: Card, 
+    currentStatus: GameStatus
+  ): CardEffectResult {
+    // 新しい関数ベース効果が定義されている場合はそれを使用
+    if (card.effect.execute) {
+      return card.effect.execute(currentStatus);
+    }
+
+    // フォールバック（基本的にはすべてのカードがexecuteを持つべき）
+    const result: CardEffectResult = {
+      description: card.effect.description
+    };
+
+    if (card.effect.type === EffectType.GAME_OVER) {
+      result.isGameOver = true;
+      result.gameOverReason = card.effect.gameOverReason;
+    }
+
+    return result;
   }
 } 

@@ -15,11 +15,21 @@ enum GameScreen {
   GAME_OVER = 'game_over'
 }
 
-// カード実行結果の詳細
-interface CardExecutionDetail {
-  card: Card;
+// 実行フェーズの種類
+enum ExecutionPhase {
+  POSITIVE = 'positive',
+  NEGATIVE = 'negative',
+  STATE_EFFECTS = 'state_effects'
+}
+
+// フェーズ実行結果の詳細
+interface PhaseExecutionDetail {
+  phase: ExecutionPhase;
+  phaseName: string;
+  cards?: Card[]; // ポジティブ・ネガティブフェーズのみ
   statusBefore: GameStatus;
   statusAfter: GameStatus;
+  descriptions: string[]; // 各効果の説明
 }
 
 const EccentricLifeGame: React.FC = () => {
@@ -32,11 +42,11 @@ const EccentricLifeGame: React.FC = () => {
   
   // カード実行オーバーレイ用の状態
   const [isShowingCardExecution, setIsShowingCardExecution] = useState(false);
-  const [cardExecutionDetails, setCardExecutionDetails] = useState<CardExecutionDetail[]>([]);
+  const [phaseExecutionDetails, setPhaseExecutionDetails] = useState<PhaseExecutionDetail[]>([]);
 
-  // カードを一枚ずつ実行するシステム
-  const [currentExecutingCards, setCurrentExecutingCards] = useState<Card[]>([]);
-  const [currentExecutingIndex, setCurrentExecutingIndex] = useState(0);
+  // フェーズ実行用の状態
+  const [currentExecutionPhase, setCurrentExecutionPhase] = useState<ExecutionPhase>(ExecutionPhase.POSITIVE);
+  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [selectedNegativeCards, setSelectedNegativeCards] = useState<Card[]>([]);
 
   const commonNames = [
@@ -107,45 +117,106 @@ const EccentricLifeGame: React.FC = () => {
     // 選択したネガティブカードを状態に保存
     setSelectedNegativeCards(randomSelectedNegativeCards);
     
-    // 実行するカードの順序（ポジティブ → ネガティブ）
-    const allCards = [...selectedPositiveCards, ...randomSelectedNegativeCards];
-    
-    // 実行カードを設定して最初のカードから開始
-    setCurrentExecutingCards(allCards);
-    setCurrentExecutingIndex(0);
-    executeNextCard(allCards, 0);
+    // フェーズ実行を開始
+    setCurrentExecutionPhase(ExecutionPhase.POSITIVE);
+    setCurrentPhaseIndex(0);
+    executePhase(ExecutionPhase.POSITIVE, selectedPositiveCards, randomSelectedNegativeCards);
   };
 
-  // カードを一枚ずつ実行
-  const executeNextCard = (allCards: Card[], cardIndex: number) => {
-    const currentCard = allCards[cardIndex];
+  // フェーズを実行
+  const executePhase = (phase: ExecutionPhase, positiveCards: Card[], negativeCards: Card[]) => {
     const statusBefore = { ...gameEngine.getState().status };
-    
-    // カード効果を実際に適用してシミュレート
     let statusAfter = { ...statusBefore };
-    
-    if (currentCard.effect.execute) {
-      const result = currentCard.effect.execute(statusBefore);
-      if (result.newStatus) {
-        statusAfter = { ...result.newStatus };
-      }
-    }
-    
-    // 毎ターン年齢+1（最後のカードの時のみ）
-    if (cardIndex === allCards.length - 1) {
-      statusAfter.age += 1;
+    const descriptions: string[] = [];
+    let cards: Card[] = [];
+    let phaseName = '';
+
+    switch (phase) {
+      case ExecutionPhase.POSITIVE:
+        cards = positiveCards;
+        phaseName = 'ポジティブカード効果';
+        
+        for (const card of positiveCards) {
+          if (card.effect.execute) {
+            const result = card.effect.execute(statusAfter);
+            if (result.newStatus) {
+              statusAfter = { ...result.newStatus };
+            }
+            descriptions.push(`${card.name}: ${result.description}`);
+          }
+        }
+        break;
+
+      case ExecutionPhase.NEGATIVE:
+        cards = negativeCards;
+        phaseName = 'ネガティブカード効果';
+        
+        for (const card of negativeCards) {
+          if (card.effect.execute) {
+            const result = card.effect.execute(statusAfter);
+            if (result.newStatus) {
+              statusAfter = { ...result.newStatus };
+            }
+            descriptions.push(`${card.name}: ${result.description}`);
+          }
+        }
+        break;
+
+      case ExecutionPhase.STATE_EFFECTS:
+        phaseName = '状態効果';
+        
+        // 複利効果の適用
+        if (statusAfter.複利 && statusAfter.複利 >= 1) {
+          const multiplier = 1 + (statusAfter.複利 * 0.1);
+          const oldWealth = statusAfter.wealth;
+          statusAfter.wealth *= multiplier;
+          descriptions.push(`複利効果: 資産が${Math.floor(oldWealth)}万円から${Math.floor(statusAfter.wealth)}万円に増加`);
+        }
+        
+        // 年齢+1（表示しない）
+        statusAfter.age += 1;
+        
+        // 他の状態効果もここに追加可能
+        if (descriptions.length === 0) {
+          descriptions.push('状態効果なし');
+        }
+        break;
     }
 
-    // 詳細を設定
-    const newDetail: CardExecutionDetail = {
-      card: currentCard,
+    // フェーズ実行結果を設定
+    const phaseDetail: PhaseExecutionDetail = {
+      phase,
+      phaseName,
+      cards: phase !== ExecutionPhase.STATE_EFFECTS ? cards : undefined,
       statusBefore,
-      statusAfter
+      statusAfter,
+      descriptions
     };
 
-    setCardExecutionDetails([newDetail]);
-    setCurrentExecutingIndex(cardIndex);
+    setPhaseExecutionDetails([phaseDetail]);
     setIsShowingCardExecution(true);
+  };
+
+  // 次のフェーズに進む
+  const handleNextPhase = () => {
+    const currentPhase = currentExecutionPhase;
+    
+    if (currentPhase === ExecutionPhase.POSITIVE) {
+      setCurrentExecutionPhase(ExecutionPhase.NEGATIVE);
+      executePhase(ExecutionPhase.NEGATIVE, selectedPositiveCards, selectedNegativeCards);
+    } else if (currentPhase === ExecutionPhase.NEGATIVE) {
+      setCurrentExecutionPhase(ExecutionPhase.STATE_EFFECTS);
+      executePhase(ExecutionPhase.STATE_EFFECTS, selectedPositiveCards, selectedNegativeCards);
+    } else {
+      // 全フェーズ完了
+      finishCardExecution();
+    }
+  };
+
+  // 残りのフェーズをスキップ
+  const handleSkipPhases = () => {
+    setIsShowingCardExecution(false);
+    finishCardExecution();
   };
 
   // カード実行完了処理
@@ -163,31 +234,23 @@ const EccentricLifeGame: React.FC = () => {
 
     // リセットして次のターンへ
     setIsShowingCardExecution(false);
-    setCardExecutionDetails([]);
-    setCurrentExecutingCards([]);
-    setCurrentExecutingIndex(0);
+    setPhaseExecutionDetails([]);
+    setCurrentExecutionPhase(ExecutionPhase.POSITIVE);
+    setCurrentPhaseIndex(0);
     setSelectedNegativeCards([]);
     nextTurn();
   };
 
   // オーバーレイで次のカードに進む
   const handleNextCard = () => {
-    // 次のカードを実行
-    const nextIndex = currentExecutingIndex + 1;
-    if (nextIndex < currentExecutingCards.length) {
-      // 次のカードがある場合は、背景を戻さずに直接次のカードを実行
-      executeNextCard(currentExecutingCards, nextIndex);
-    } else {
-      // 全カード実行完了時のみ背景を戻す
-      setIsShowingCardExecution(false);
-      finishCardExecution();
-    }
+    // フェーズベースシステムでは不要なので handleNextPhase を使用
+    handleNextPhase();
   };
 
   // 残りのカードをスキップ
   const handleSkipCards = () => {
-    setIsShowingCardExecution(false);
-    finishCardExecution();
+    // フェーズベースシステムでは不要なので handleSkipPhases を使用
+    handleSkipPhases();
   };
 
   // 次のターンへ
@@ -233,10 +296,10 @@ const EccentricLifeGame: React.FC = () => {
           <div className="text-xs text-gray-300">資産</div>
         </div>
         <div className="text-center bg-gray-800 p-2 rounded border border-gray-600">
-          <div className={`text-lg font-bold ${gameState.status.trust >= 0 ? 'text-blue-400' : 'text-red-500'}`}>
-            {gameState.status.trust}
+          <div className={`text-lg font-bold ${gameState.status.goodness >= 0 ? 'text-blue-400' : 'text-red-500'}`}>
+            {gameState.status.goodness}
           </div>
-          <div className="text-xs text-gray-300">信用</div>
+          <div className="text-xs text-gray-300">善良さ</div>
         </div>
         <div className="text-center bg-gray-800 p-2 rounded border border-gray-600">
           <div className="text-lg font-bold text-purple-400">{gameState.status.ability}</div>
@@ -250,14 +313,14 @@ const EccentricLifeGame: React.FC = () => {
       
       {/* 状態表示 */}
       {Object.entries(gameState.status).filter(([key, value]) => 
-        !['wealth', 'trust', 'ability', 'age'].includes(key) && typeof value === 'number' && value > 0
+        !['wealth', 'goodness', 'ability', 'age'].includes(key) && typeof value === 'number' && value > 0
       ).length > 0 && (
         <div className="mb-3">
           <div className="text-xs text-gray-400 mb-1">状態効果</div>
           <div className="flex flex-wrap gap-1">
             {Object.entries(gameState.status)
               .filter(([key, value]) => 
-                !['wealth', 'trust', 'ability', 'age'].includes(key) && typeof value === 'number' && value > 0
+                !['wealth', 'goodness', 'ability', 'age'].includes(key) && typeof value === 'number' && value > 0
               )
               .map(([stateName, value]) => (
                 <span
@@ -460,13 +523,13 @@ const EccentricLifeGame: React.FC = () => {
           </div>
 
           {/* オーバーレイ表示 */}
-          {isShowingCardExecution && cardExecutionDetails.length > 0 && (
+          {isShowingCardExecution && phaseExecutionDetails.length > 0 && (
             <CardExecutionOverlay
-              detail={cardExecutionDetails[0]}
-              onNext={handleNextCard}
-              onSkip={handleSkipCards}
-              currentIndex={currentExecutingIndex}
-              totalCards={currentExecutingCards.length}
+              detail={phaseExecutionDetails[0]}
+              onNext={handleNextPhase}
+              onSkip={handleSkipPhases}
+              currentIndex={currentExecutionPhase === ExecutionPhase.POSITIVE ? 0 : currentExecutionPhase === ExecutionPhase.NEGATIVE ? 1 : 2}
+              totalCards={3}
             />
           )}
         </div>

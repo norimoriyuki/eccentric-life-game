@@ -1,7 +1,7 @@
 // ゲームの基本ステータス（状態も含む）
 export interface GameStatus {
   wealth: number; // 資産（万円）
-  trust: number; // 信用度（0-100）
+  goodness: number; // 善良さ（0-100）
   ability: number; // 能力（0-100）
   age: number; // 年齢
   // 継続効果の状態（0以上の整数）
@@ -106,7 +106,7 @@ export interface WeightFunctionParams {
 // ステータス別重み設定
 export interface StatusWeightConfig {
   wealth?: WeightFunctionParams; // 資産による重み
-  trust?: WeightFunctionParams; // 信用度による重み
+  goodness?: WeightFunctionParams; // 善良さによる重み
   ability?: WeightFunctionParams; // 能力による重み
   age?: WeightFunctionParams; // 年齢による重み
 }
@@ -126,8 +126,8 @@ export interface AppearanceCondition {
   // 旧式の簡単な範囲指定（後方互換性のため残す）
   minAge?: number;
   maxAge?: number;
-  minTrust?: number;
-  maxTrust?: number;
+  minGoodness?: number;
+  maxGoodness?: number;
   minWealth?: number;
   maxWealth?: number;
   minAbility?: number;

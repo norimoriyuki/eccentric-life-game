@@ -245,17 +245,17 @@ export const negativeCards: Card[] = [
     id: 'minor_crime',
     name: '軽犯罪',
     type: CardType.NEGATIVE,
-    description: '小さな犯罪で信用失墜',
+    description: '小さな犯罪で善良さ失墜',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '信用度-10',
+      description: '善良さ-10',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
-        newStatus.trust -= 10;
+        newStatus.goodness -= 10;
         
         return {
           newStatus,
-          description: '信用度-10'
+          description: '善良さ-10'
         };
       }
     },
@@ -316,31 +316,31 @@ export const negativeCards: Card[] = [
         const newStatus = { ...status };
         
         if (status.wealth < 100) {
-          newStatus.trust -= 5;
+          newStatus.goodness -= 5;
           return {
             newStatus,
-            description: '貧困による信用失墜、信用-5'
+            description: '貧困による善良さ失墜、善良さ-5'
           };
         } else if (status.wealth < 500) {
           newStatus.wealth -= 50;
-          newStatus.trust -= 3;
+          newStatus.goodness -= 3;
           return {
             newStatus,
-            description: '中程度の詐欺被害、資産-50万円、信用-3'
+            description: '中程度の詐欺被害、資産-50万円、善良さ-3'
           };
         } else if (status.wealth < 2000) {
           newStatus.wealth *= 0.8;
-          newStatus.trust -= 10;
+          newStatus.goodness -= 10;
           return {
             newStatus,
-            description: '投資詐欺で資産20%減少、信用-10'
+            description: '投資詐欺で資産20%減少、善良さ-10'
           };
         } else {
           newStatus.wealth *= 0.6;
-          newStatus.trust -= 20;
+          newStatus.goodness -= 20;
           return {
             newStatus,
-            description: '巨額詐欺で資産40%減少、信用-20'
+            description: '巨額詐欺で資産40%減少、善良さ-20'
           };
         }
       }
@@ -368,8 +368,8 @@ export const negativeCards: Card[] = [
         if (status.複利 && status.複利 > 0) {
           newStatus.ability -= 5; // 追加で-5（合計-15）
           newStatus.wealth -= 50; // 追加で-50（合計-100）
-          newStatus.trust -= 5;
-          description = '投資ストレス病、能力-15、資産-100万円、信用-5';
+          newStatus.goodness -= 5;
+          description = '投資ストレス病、能力-15、資産-100万円、善良さ-5';
         }
 
         return {

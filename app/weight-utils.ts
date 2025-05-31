@@ -86,8 +86,8 @@ export function calculateAllStatusWeights(
   if (config.wealth) {
     weights.wealth = calculateStatusWeight(status.wealth, config.wealth);
   }
-  if (config.trust) {
-    weights.trust = calculateStatusWeight(status.trust, config.trust);
+  if (config.goodness) {
+    weights.goodness = calculateStatusWeight(status.goodness, config.goodness);
   }
   if (config.ability) {
     weights.ability = calculateStatusWeight(status.ability, config.ability);

@@ -36,7 +36,7 @@ export class GameEngine {
   private createEmptyState(): GameState {
     return {
       playerName: '',
-      status: { wealth: 0, trust: 0, ability: 0, age: 0 },
+      status: { wealth: 0, goodness: 0, ability: 0, age: 0 },
       turn: 0,
       isGameOver: false,
       selectedPositiveCards: [],
@@ -51,12 +51,12 @@ export class GameEngine {
   initializeGame(params: GameInitParams): GameState {
     const initialStatus: GameStatus = params.initialStatus ? {
       wealth: params.initialStatus.wealth ?? this.randomBetween(-500, 1000),
-      trust: params.initialStatus.trust ?? this.randomBetween(0, 100),
+      goodness: params.initialStatus.goodness ?? this.randomBetween(0, 100),
       ability: params.initialStatus.ability ?? this.randomBetween(0, 100),
       age: params.initialStatus.age ?? this.randomBetween(18, 60)
     } : {
       wealth: this.randomBetween(-500, 1000),
-      trust: this.randomBetween(0, 100),
+      goodness: this.randomBetween(0, 100),
       ability: this.randomBetween(0, 100),
       age: this.randomBetween(18, 60)
     };
@@ -169,8 +169,8 @@ export class GameEngine {
       const condition = card.appearanceCondition;
       if (condition.minAge !== undefined && this.state.status.age < condition.minAge) finalRate = 0;
       if (condition.maxAge !== undefined && this.state.status.age > condition.maxAge) finalRate = 0;
-      if (condition.minTrust !== undefined && this.state.status.trust < condition.minTrust) finalRate = 0;
-      if (condition.maxTrust !== undefined && this.state.status.trust > condition.maxTrust) finalRate = 0;
+      if (condition.minGoodness !== undefined && this.state.status.goodness < condition.minGoodness) finalRate = 0;
+      if (condition.maxGoodness !== undefined && this.state.status.goodness > condition.maxGoodness) finalRate = 0;
       if (condition.minWealth !== undefined && this.state.status.wealth < condition.minWealth) finalRate = 0;
       if (condition.maxWealth !== undefined && this.state.status.wealth > condition.maxWealth) finalRate = 0;
       if (condition.minAbility !== undefined && this.state.status.ability < condition.minAbility) finalRate = 0;

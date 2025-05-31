@@ -1,14 +1,25 @@
 import React from 'react';
 import { Card, GameStatus } from '../types';
 
-interface CardExecutionDetail {
-  card: Card;
+// 実行フェーズの種類
+enum ExecutionPhase {
+  POSITIVE = 'positive',
+  NEGATIVE = 'negative',
+  STATE_EFFECTS = 'state_effects'
+}
+
+// フェーズ実行結果の詳細
+interface PhaseExecutionDetail {
+  phase: ExecutionPhase;
+  phaseName: string;
+  cards?: Card[]; // ポジティブ・ネガティブフェーズのみ
   statusBefore: GameStatus;
   statusAfter: GameStatus;
+  descriptions: string[]; // 各効果の説明
 }
 
 interface CardExecutionOverlayProps {
-  detail: CardExecutionDetail;
+  detail: PhaseExecutionDetail;
   onNext: () => void;
   onSkip?: () => void;
   currentIndex: number;
@@ -22,12 +33,12 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
   currentIndex, 
   totalCards 
 }) => {
-  const { card, statusBefore, statusAfter } = detail;
+  const { phase, phaseName, cards, statusBefore, statusAfter, descriptions } = detail;
   
   const formatChange = (before: number, after: number) => {
     const change = after - before;
     if (change === 0) return '変化なし';
-    return change > 0 ? `+${change}` : `${change}`;
+    return change > 0 ? `+${Math.floor(change)}` : `${Math.floor(change)}`;
   };
 
   const getChangeColor = (before: number, after: number, isAge: boolean = false) => {
@@ -39,6 +50,32 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
     return change > 0 ? 'text-green-400' : 'text-red-400';
   };
 
+  const getPhaseColor = () => {
+    switch (phase) {
+      case ExecutionPhase.POSITIVE:
+        return 'border-green-500 bg-gradient-to-br from-green-900 to-green-800';
+      case ExecutionPhase.NEGATIVE:
+        return 'border-red-500 bg-gradient-to-br from-red-900 to-red-800';
+      case ExecutionPhase.STATE_EFFECTS:
+        return 'border-yellow-500 bg-gradient-to-br from-yellow-900 to-yellow-800';
+      default:
+        return 'border-gray-500 bg-gradient-to-br from-gray-900 to-gray-800';
+    }
+  };
+
+  const getPhaseIcon = () => {
+    switch (phase) {
+      case ExecutionPhase.POSITIVE:
+        return '✨';
+      case ExecutionPhase.NEGATIVE:
+        return '💀';
+      case ExecutionPhase.STATE_EFFECTS:
+        return '🔄';
+      default:
+        return '🎲';
+    }
+  };
+
   return (
     <div 
       className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4"
@@ -48,18 +85,36 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
         className="max-w-md w-full bg-gray-900 border-2 border-yellow-600 rounded-lg p-6 shadow-2xl cursor-pointer"
         onClick={onNext}
       >
-        {/* カード情報 */}
-        <div className={`
-          border-2 rounded-lg p-4 mb-6
-          ${card.type === 'positive' 
-            ? 'border-green-500 bg-gradient-to-br from-green-900 to-green-800' 
-            : 'border-red-500 bg-gradient-to-br from-red-900 to-red-800'
-          }
-        `}>
-          <h3 className="font-bold text-xl mb-2 text-white">{card.name}</h3>
-          <p className="text-sm text-gray-200 mb-2">{card.description}</p>
-          <div className="text-xs bg-black/40 p-2 rounded text-gray-100">
-            {card.effect.description}
+        {/* フェーズ情報 */}
+        <div className={`border-2 rounded-lg p-4 mb-6 ${getPhaseColor()}`}>
+          <h3 className="font-bold text-xl mb-3 text-white text-center">
+            {getPhaseIcon()} {phaseName}
+          </h3>
+          
+          {/* カード一覧（ポジティブ・ネガティブフェーズのみ） */}
+          {cards && cards.length > 0 && (
+            <div className="mb-3">
+              <div className="text-sm text-gray-200 mb-2">実行カード:</div>
+              <div className="space-y-1">
+                {cards.map((card, index) => (
+                  <div key={index} className="text-xs bg-black/40 p-2 rounded text-gray-100">
+                    <span className="font-semibold">{card.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* 効果説明 */}
+          <div>
+            <div className="text-sm text-gray-200 mb-2">効果:</div>
+            <div className="space-y-1">
+              {descriptions.map((desc, index) => (
+                <div key={index} className="text-xs bg-black/40 p-2 rounded text-gray-100">
+                  {desc}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -79,14 +134,14 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
               </div>
             </div>
             <div className="text-center bg-gray-800 p-3 rounded border border-gray-600">
-              <div className="text-sm text-gray-300">信用度</div>
+              <div className="text-sm text-gray-300">善良さ</div>
               <div className="text-lg">
-                <span className="text-gray-400">{statusBefore.trust}</span>
+                <span className="text-gray-400">{statusBefore.goodness}</span>
                 <span className="mx-1">→</span>
-                <span className="text-white">{statusAfter.trust}</span>
+                <span className="text-white">{statusAfter.goodness}</span>
               </div>
-              <div className={`text-sm font-bold ${getChangeColor(statusBefore.trust, statusAfter.trust)}`}>
-                {formatChange(statusBefore.trust, statusAfter.trust)}
+              <div className={`text-sm font-bold ${getChangeColor(statusBefore.goodness, statusAfter.goodness)}`}>
+                {formatChange(statusBefore.goodness, statusAfter.goodness)}
               </div>
             </div>
             <div className="text-center bg-gray-800 p-3 rounded border border-gray-600">
@@ -114,10 +169,37 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
           </div>
         </div>
 
+        {/* 状態効果の表示 */}
+        {phase !== ExecutionPhase.STATE_EFFECTS && (
+          <div className="mb-6">
+            <h4 className="text-lg font-bold text-purple-400 mb-2 text-center">🔮 状態効果</h4>
+            <div className="flex flex-wrap gap-1 justify-center">
+              {Object.entries(statusAfter)
+                .filter(([key, value]) => 
+                  !['wealth', 'goodness', 'ability', 'age'].includes(key) && typeof value === 'number' && value > 0
+                )
+                .map(([stateName, value]) => (
+                  <span
+                    key={stateName}
+                    className="bg-purple-600 text-purple-100 px-2 py-1 rounded text-xs font-medium"
+                  >
+                    {stateName} {value}
+                  </span>
+                ))}
+              {Object.entries(statusAfter)
+                .filter(([key, value]) => 
+                  !['wealth', 'goodness', 'ability', 'age'].includes(key) && typeof value === 'number' && value > 0
+                ).length === 0 && (
+                <span className="text-gray-400 text-sm">状態効果なし</span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* 進行情報 */}
         <div className="text-center">
           <div className="text-sm text-gray-400 mb-3">
-            {currentIndex + 1} / {totalCards}
+            フェーズ {currentIndex + 1} / 3
           </div>
           <div className="text-xs text-gray-500">
             📱 画面をタップして次へ
@@ -125,8 +207,8 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
         </div>
       </div>
 
-      {/* スキップリンク（オーバーレイコンテナの外） */}
-      {onSkip && totalCards > 1 && currentIndex < totalCards - 1 && (
+      {/* スキップリンク */}
+      {onSkip && currentIndex < 2 && (
         <div className="mt-4">
           <button
             onClick={(e) => {
@@ -135,7 +217,7 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
             }}
             className="text-gray-400 hover:text-white text-sm underline transition-colors"
           >
-            残り{totalCards - currentIndex - 1}枚をスキップ
+            残りフェーズをスキップ
           </button>
         </div>
       )}

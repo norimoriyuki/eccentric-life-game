@@ -577,6 +577,33 @@ export const positiveCards: Card[] = [
       return 0; // 能力100未満では出現しない
     }
   },
+
+  {
+    id: 'human_modification',
+    name: '人体改造',
+    type: CardType.POSITIVE,
+    description: '資産-1000万円、能力+50',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.wealth -= 1000;
+        newStatus.ability += 50;
+        
+        return {
+          newStatus,
+          description: '人体改造で資産-1000万円、能力+50'
+        };
+      }
+    },
+    baseAppearanceRate: 0.4,
+    probabilityCalculator: (status) => {
+      // 資産が十分にあると出現率UP
+      if (status.wealth >= 2000) return 1.0;
+      if (status.wealth >= 1000) return 0.8;
+      return 0.3; // 資産不足でも低確率で出現
+    }
+  },
 ];
 
 // ===============================
@@ -982,6 +1009,46 @@ export const negativeCards: Card[] = [
         return 1.5;
       }
       return 0; // 条件を満たさない場合は出現しない
+    }
+  },
+
+  {
+    id: 'death_penalty',
+    name: '死刑',
+    type: CardType.NEGATIVE,
+    description: '即ゲームオーバー（善良さ-3000以下で出現、実行時善良さ-3000以下で執行）',
+    effect: {
+      type: EffectType.GAME_OVER,
+      gameOverReason: GameOverReason.DEATH_PENALTY,
+      execute: (status: GameStatus): CardEffectResult => {
+        // 実行時の善良さをチェック
+        if (status.goodness <= -3000) {
+          // 善良さが-3000以下なら死刑執行
+          return {
+            isGameOver: true,
+            gameOverReason: GameOverReason.DEATH_PENALTY,
+            description: `善良さ${status.goodness}により死刑執行 - ゲームオーバー`
+          };
+        } else {
+          // 善良さが-3000より大きければ不発
+          return {
+            newStatus: status,
+            description: `死刑宣告されたが善良さ${status.goodness}のため執行猶予（-3000以下で執行）`
+          };
+        }
+      }
+    },
+    baseAppearanceRate: 2.0,
+    probabilityCalculator: (status) => {
+      // 善良さ-3000以下でのみ出現
+      if (status.goodness <= -3000) {
+        // 善良さが低いほど出現率UP
+        const evilLevel = Math.abs(status.goodness);
+        if (evilLevel >= 5000) return 4.0; // 超極悪人
+        if (evilLevel >= 4000) return 3.0;
+        return 2.0;
+      }
+      return 0; // 善良さ-3000より大きい場合は出現しない
     }
   },
 ];

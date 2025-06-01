@@ -108,7 +108,7 @@ export class GameEngine {
    */
   drawCards(): CardDrawResult {
     const drawnPositiveCards = this.drawCardsByTypeWithoutDuplication(positiveCards, 4);
-    const drawnNegativeCards = this.drawCardsByTypeWithDuplication(negativeCards, 4);
+    const drawnNegativeCards = this.drawCardsByTypeWithoutDuplication(negativeCards, 4);
 
     return {
       positiveCards: drawnPositiveCards,

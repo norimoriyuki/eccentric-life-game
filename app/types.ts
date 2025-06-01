@@ -26,6 +26,7 @@ export enum GameOverReason {
   DIMENSION_SUCKED = 'dimension_sucked', // 異次元に吸い込まれる
   BLACKHOLE = 'blackhole', // ブラックホール
   SUICIDE = 'suicide', // 自殺
+  DEATH_PENALTY = 'death_penalty', // 死刑
   // 他のゲームオーバー理由も追加可能
 }
 
@@ -55,7 +56,6 @@ export type CardEffectFunction = (
 export interface CardEffect {
   type: EffectType;
   gameOverReason?: GameOverReason;
-  description?: string; // 効果の説明文（オプショナル）
   risks?: string[]; // 付随するリスク
   // 関数ベース効果
   execute?: CardEffectFunction; // カスタム効果処理関数

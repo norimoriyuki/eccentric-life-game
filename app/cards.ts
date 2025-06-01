@@ -16,10 +16,9 @@ export const positiveCards: Card[] = [
     id: 'labor',
     name: '労働',
     type: CardType.POSITIVE,
-    description: '正当な労働で収入を得る',
+    description: '能力の値だけ稼ぐ、善良さ+5、能力+5',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '能力に応じた収入、善良さ+5、能力+5',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         newStatus.wealth += status.ability;
@@ -46,14 +45,13 @@ export const positiveCards: Card[] = [
     id: 'shinogi',
     name: 'シノギ',
     type: CardType.POSITIVE,
-    description: 'グレーな手段で稼ぐ',
+    description: '能力の値だけ稼ぐ、善良さ-10、能力+5',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '能力に応じた収入、善良さ-5、能力+5',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         newStatus.wealth += status.ability;
-        newStatus.goodness -= 5;
+        newStatus.goodness -= 10;
         newStatus.ability += 5;
         
         return {
@@ -76,10 +74,9 @@ export const positiveCards: Card[] = [
     id: 'pension',
     name: '年金',
     type: CardType.POSITIVE,
-    description: '年金受給で安定収入',
+    description: '資産+40万円',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '資産+40万円',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         newStatus.wealth += 40;
@@ -103,10 +100,9 @@ export const positiveCards: Card[] = [
     id: 'investment',
     name: '投資',
     type: CardType.POSITIVE,
-    description: '複利で継続的に資産増加',
+    description: '複利状態+1（毎ターン資産10%増加）',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '複利状態+1（毎ターン資産10%増加）',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         newStatus.compound = (newStatus.compound || 0) + 1;
@@ -130,10 +126,9 @@ export const positiveCards: Card[] = [
     id: 'stocks',
     name: '株取引',
     type: CardType.POSITIVE,
-    description: '現在資産の20%増加',
+    description: '資産が1.2倍になる',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '資産が1.2倍になる',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         const oldWealth = newStatus.wealth;
@@ -158,10 +153,9 @@ export const positiveCards: Card[] = [
     id: 'business',
     name: '起業',
     type: CardType.POSITIVE,
-    description: '事業成功で資産40%増加',
+    description: '資産が1.4倍になる',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '資産が1.4倍になる',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         const oldWealth = newStatus.wealth;
@@ -186,10 +180,9 @@ export const positiveCards: Card[] = [
     id: 'smart_investment',
     name: '賢い投資',
     type: CardType.POSITIVE,
-    description: '能力に応じた投資収益',
+    description: '能力80以上で資産1.5倍、50以上で1.3倍、未満で1.1倍',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '能力に応じた投資効果',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         let multiplier = 1.1;
@@ -225,10 +218,9 @@ export const positiveCards: Card[] = [
     id: 'compound_interest_mastery',
     name: '複利の極意',
     type: CardType.POSITIVE,
-    description: '複利効果を強化または開始',
+    description: '複利なしなら開始+能力+10、ありなら強化+複利レベル×80万円',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '複利状態に応じた効果',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         const currentCompound = status.compound || 0;
@@ -266,10 +258,9 @@ export const positiveCards: Card[] = [
     id: 'wealth_doubler',
     name: '大当たり',
     type: CardType.POSITIVE,
-    description: '現在の資産が2倍になる',
+    description: '資産が2倍になる',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '資産を2倍にする',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         const oldWealth = newStatus.wealth;
@@ -292,10 +283,9 @@ export const positiveCards: Card[] = [
     id: 'isekai_reincarnation',
     name: '異世界転生',
     type: CardType.POSITIVE,
-    description: '能力そのままで人生リセット',
+    description: '能力保持、他ステータス乱数、状態リセット、50%で仕送り取得',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '異世界で新たな人生を始める',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         
@@ -331,15 +321,86 @@ export const positiveCards: Card[] = [
         };
       }
     },
-    baseAppearanceRate: 1,
+    baseAppearanceRate: 0.01,
+  },
+
+  {
+    id: 'surrender',
+    name: '自首',
+    type: CardType.POSITIVE,
+    description: '善良さのマイナスの値の10%の年数服役、善良さ0に回復',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const currentGoodness = status.goodness;
+        
+        const prisonYears = Math.ceil(Math.abs(currentGoodness) * 0.1); // マイナス善良さの10%
+        newStatus.goodness = 0; // 善良さを0に回復
+        newStatus.age += prisonYears;
+        
+        return {
+          newStatus,
+          description: `自首して${prisonYears}年間の服役、善良さが0に回復、年齢+${prisonYears}歳`
+        };
+      }
+    },
+    baseAppearanceRate: 0.5,
     probabilityCalculator: (status) => {
-      // 極レアカード、年齢が高いとわずかに出現率UP、能力が高いとさらにUP
-      let multiplier = 1.0;
-      if (status.age >= 70) multiplier += 0.5;
-      if (status.age >= 50) multiplier += 0.2;
-      if (status.ability >= 80) multiplier += 0.3;
-      if (status.ability >= 100) multiplier += 0.5;
-      return multiplier;
+      // 善良さがマイナスの時のみ高確率で出現
+      if (status.goodness < 0) {
+        const badnessLevel = Math.abs(status.goodness);
+        if (badnessLevel >= 50) return 2.5;
+        if (badnessLevel >= 30) return 2.0;
+        return 1.5;
+      }
+      // 善良さが0以上でも低確率で出現（通常の善良な行い）
+      return 0;
+    }
+  },
+
+  {
+    id: 'bribery',
+    name: '賄賂',
+    type: CardType.POSITIVE,
+    description: '資産-1000万円で善良さ0に回復（資産不足なら失敗）',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        
+        if (status.wealth < 1000) {
+          // 資産が不足している場合
+          return {
+            newStatus,
+            description: '資産不足で賄賂を渡せない（1000万円必要）'
+          };
+        }
+        
+        newStatus.wealth -= 1000;
+        newStatus.goodness = 0; // 善良さを0に回復
+        
+        return {
+          newStatus,
+          description: '賄賂1000万円で善良さが0に回復（もみ消し成功）'
+        };
+      }
+    },
+    baseAppearanceRate: 0.3,
+    probabilityCalculator: (status) => {
+      // 善良さがマイナスかつ資産が十分な時のみ出現
+      if (status.goodness < 0) {
+        if (status.wealth >= 1000) {
+          const badnessLevel = Math.abs(status.goodness);
+          if (badnessLevel >= 50) return 2.0;
+          if (badnessLevel >= 30) return 1.5;
+          return 1.0;
+        } else {
+          // 資産不足でも低確率で出現（選択すると失敗）
+          return 0.3;
+        }
+      }
+      return 0; // 善良さが0以上では出現しない
     }
   },
 ];
@@ -353,11 +414,10 @@ export const negativeCards: Card[] = [
     id: 'old_age',
     name: '老衰',
     type: CardType.NEGATIVE,
-    description: '年老いて命を終える',
+    description: 'ゲームオーバー（年老いて死亡）',
     effect: {
       type: EffectType.GAME_OVER,
       gameOverReason: GameOverReason.OLD_AGE,
-      description: 'ゲームオーバー：老衰',
       execute: (__status: GameStatus): CardEffectResult => {
         return {
           isGameOver: true,
@@ -379,10 +439,9 @@ export const negativeCards: Card[] = [
     id: 'minor_crime',
     name: '軽犯罪',
     type: CardType.NEGATIVE,
-    description: '小さな罪で善良さ低下',
+    description: '善良さ-15',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '善良さ-15',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         newStatus.goodness -= 15;
@@ -407,10 +466,9 @@ export const negativeCards: Card[] = [
     id: 'traffic_violation',
     name: '交通違反',
     type: CardType.NEGATIVE,
-    description: '罰金で資産減少',
+    description: '資産-80万円（罰金）',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '資産-80万円',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         newStatus.wealth -= 80;
@@ -432,12 +490,11 @@ export const negativeCards: Card[] = [
 
   {
     id: 'aging',
-    name: '過労',
+    name: '加齢',
     type: CardType.NEGATIVE,
-    description: 'ひどく疲れて老化進行',
+    description: '年齢+3歳（疲労による老化）',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '年齢+3歳',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         newStatus.age += 3;
@@ -458,13 +515,37 @@ export const negativeCards: Card[] = [
   },
 
   {
+    id: 'pay_pension',
+    name: '年金',
+    type: CardType.NEGATIVE,
+    description: '年金を10万円払う',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.wealth -= 10
+        
+        return {
+          newStatus,
+          description: '年金を10万円払う'
+        };
+      }
+    },
+    baseAppearanceRate: 1.2,
+    probabilityCalculator: (status) => {
+      // 年齢が高いほど出現率Down
+      if (status.age >= 60) return 0;
+      return 1.0;
+    }
+  },
+
+  {
     id: 'wealth_dependent_crisis',
     name: '資産危機',
     type: CardType.NEGATIVE,
-    description: '資産に応じた損失',
+    description: '50万円未満で貧困、200万円未満で詐欺-60万円、1000万円未満で15%減、以上で30%減',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '資産に応じた危機',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         
@@ -513,10 +594,9 @@ export const negativeCards: Card[] = [
     id: 'state_dependent_disease',
     name: '病気',
     type: CardType.NEGATIVE,
-    description: '体調不良で能力低下と治療費',
+    description: '基本：能力-15、資産-100万円。複利状態で悪化。薬中状態で重症化',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '状態に応じた病気',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         
@@ -566,7 +646,6 @@ export const negativeCards: Card[] = [
     description: '資産が半分になる',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '資産半減',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         const oldWealth = newStatus.wealth;
@@ -591,10 +670,9 @@ export const negativeCards: Card[] = [
     id: 'drug_addiction',
     name: '薬物中毒',
     type: CardType.NEGATIVE,
-    description: '薬物で毎ターン老化進行',
+    description: '薬中状態+1（毎ターン追加老化）、善良さ-20、資産-120万円',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '薬中状態+1（毎ターン追加老化）',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         newStatus.addiction = (newStatus.addiction || 0) + 1;
@@ -621,10 +699,9 @@ export const negativeCards: Card[] = [
     id: 'heavy_drugs',
     name: '危険薬物',
     type: CardType.NEGATIVE,
-    description: 'より危険な薬物で重篤化',
+    description: '初回：薬中状態+2、善良さ-30、資産-250万円、能力-15。既存時：悪化',
     effect: {
       type: EffectType.STATUS_CHANGE,
-      description: '薬中状態に応じた効果',
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         const currentAddiction = status.addiction || 0;
@@ -661,6 +738,99 @@ export const negativeCards: Card[] = [
       const addictionMultiplier = addiction > 0 ? 2.0 + addiction * 0.5 : 1.0;
       const goodnessMultiplier = status.goodness <= 30 ? 2.0 : status.goodness <= 50 ? 1.5 : 1.0;
       return addictionMultiplier * goodnessMultiplier;
+    }
+  },
+
+  {
+    id: 'property_tax',
+    name: '固定資産税',
+    type: CardType.NEGATIVE,
+    description: '資産の10%を税金として徴収（資産1000万円超でのみ出現）',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const taxAmount = status.wealth * 0.1;
+        newStatus.wealth -= taxAmount;
+        
+        return {
+          newStatus,
+          description: `固定資産税として資産の10%（${Math.floor(taxAmount)}万円）を支払い`
+        };
+      }
+    },
+    baseAppearanceRate: 0.1,
+    probabilityCalculator: (status) => {
+      // 資産が1000万円を超えると出現、それ以下は出現しない
+      if (status.wealth > 1000) {
+        // 資産が多いほど出現率UP
+        if (status.wealth >= 5000) return 2.0;
+        if (status.wealth >= 2000) return 1.5;
+        return 1.0;
+      }
+      return 0; // 1000万円以下は出現しない
+    }
+  },
+
+  {
+    id: 'resident_tax',
+    name: '住民税',
+    type: CardType.NEGATIVE,
+    description: '資産-10万円（住民税）',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.wealth -= 10;
+        
+        return {
+          newStatus,
+          description: '住民税として10万円を支払い'
+        };
+      }
+    },
+    baseAppearanceRate: 1.0,
+    probabilityCalculator: (status) => {
+      // 基本的に通常確率、資産が多いとわずかに出現率UP
+      if (status.wealth >= 500) return 1.3;
+      if (status.wealth >= 100) return 1.1;
+      return 1.0;
+    }
+  },
+
+  {
+    id: 'arrest',
+    name: '逮捕',
+    type: CardType.NEGATIVE,
+    description: '善良さのマイナスの値の20%の年数服役、善良さ0に回復、費用-200万円',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const currentGoodness = status.goodness;
+        
+        const prisonYears = Math.ceil(Math.abs(currentGoodness) * 0.2); // マイナス善良さの20%
+        newStatus.goodness = 0; // 善良さを0に回復
+        newStatus.age += prisonYears;
+        newStatus.wealth -= 200; // 弁護士費用や罰金
+        
+        return {
+          newStatus,
+          description: `逮捕され${prisonYears}年間の服役、善良さが0に回復、年齢+${prisonYears}歳、費用-200万円`
+        };
+      }
+    },
+    baseAppearanceRate: 0.3,
+    probabilityCalculator: (status) => {
+      // 善良さがマイナスの時のみ高確率で出現
+      if (status.goodness < 0) {
+        const badnessLevel = Math.abs(status.goodness);
+        if (badnessLevel >= 50) return 3.0; // 重罪者は逮捕されやすい
+        if (badnessLevel >= 30) return 2.0;
+        return 1.5;
+      }
+      // 善良さが0以上でも低確率で出現（冤罪など）
+      return 0;
     }
   },
 ];

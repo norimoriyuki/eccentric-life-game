@@ -31,7 +31,7 @@ export const CardComponent: React.FC<CardComponentProps> = ({
   >
     <h3 className="font-bold text-sm mb-2 text-white">{card.name}</h3>
     <div className="text-xs bg-black/40 p-2 rounded border border-gray-600 text-gray-100">
-      {card.effect.description}
+      {card.description}
     </div>
   </div>
 ); 

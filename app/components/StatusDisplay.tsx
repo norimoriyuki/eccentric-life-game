@@ -17,7 +17,7 @@ const getStateDisplayName = (stateName: string): string => {
 
 export const StatusDisplay: React.FC<StatusDisplayProps> = ({ gameState }) => (
   <div className="bg-gray-900 border border-gray-700 p-3 rounded-lg mb-4 shadow-xl">
-    <h2 className="text-lg font-bold mb-3 text-red-400 text-center">{gameState.playerName} さんの人生状況</h2>
+    <h2 className="text-lg font-bold mb-3 text-red-400 text-center">{gameState.playerName} </h2>
     
     {/* 資産を大きく表示 */}
     <div className="text-center bg-gray-800 p-4 rounded border border-gray-600 mb-3">

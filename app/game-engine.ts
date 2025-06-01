@@ -340,7 +340,7 @@ export class GameEngine {
 
     // フォールバック（基本的にはすべてのカードがexecuteを持つべき）
     const result: CardEffectResult = {
-      description: card.effect.description
+      description: card.description
     };
 
     if (card.effect.type === EffectType.GAME_OVER) {

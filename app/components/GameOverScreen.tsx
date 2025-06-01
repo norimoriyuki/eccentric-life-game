@@ -46,7 +46,7 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRes
               onClick={onResetGame}
               className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl"
             >
-              🔄 再び人生を始める
+              🔄 再人生ガチャ
             </button>
             
           </div>

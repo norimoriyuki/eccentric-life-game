@@ -1,11 +1,10 @@
 // ゲームの基本ステータス（状態も含む）
 export interface GameStatus {
-  wealth: number; // 資産（万円）
-  goodness: number; // 善良さ（0-100）
-  ability: number; // 能力（0-100）
-  age: number; // 年齢
-  // 継続効果の状態（0以上の整数）
-  [stateName: string]: number; // 任意の状態名と値のペア
+  wealth: number; 
+  goodness: number; 
+  ability: number; 
+  age: number; 
+  [stateName: string]: number; 
 }
 
 // ゲームの状態（継続効果）
@@ -56,7 +55,7 @@ export type CardEffectFunction = (
 export interface CardEffect {
   type: EffectType;
   gameOverReason?: GameOverReason;
-  description: string; // 効果の説明文
+  description?: string; // 効果の説明文（オプショナル）
   risks?: string[]; // 付随するリスク
   // 関数ベース効果
   execute?: CardEffectFunction; // カスタム効果処理関数

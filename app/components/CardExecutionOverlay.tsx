@@ -31,7 +31,9 @@ const getStateDisplayName = (stateName: string): string => {
   const stateNameMap: Record<string, string> = {
     'allowance': '仕送り',
     'compound': '複利',
-    'addiction': '薬中'
+    'addiction': '薬中',
+    'passiveIncome': '不労所得',
+    'trauma': 'トラウマ'
   };
   return stateNameMap[stateName] || stateName;
 };

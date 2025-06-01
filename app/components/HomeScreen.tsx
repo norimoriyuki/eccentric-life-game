@@ -1,11 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { UpdateNotification } from './UpdateNotification';
 
 interface HomeScreenProps {
-  onStartNewGame: () => void;
+  onInitializeGame: (playerName: string) => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartNewGame }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onInitializeGame }) => {
+  const getRandomName = () => {
+    const names = [
+      '太郎', '花子', '健太', '美咲', '翔', '麻衣', '大輔', '彩', '慶太', '由美',
+      '雅之介', '美智子', '貴一郎', '麗香子', '慶太郎', '雅美子', '裕太郎', '貴美子', '雄一朗', '真理子',
+      '勇心斗', '光宙', '天使羅', '姫煌々', '龍皇牙', '独角獣王', '幻想曲', '虹色愛', '雷音丸', '不死鳥炎',
+      '究極無敵', '無限大愛', '銀河系王', '伝説勇者', '最終幻想', '超人王者', '不思議国', '王者無敵', '永遠愛心', '奇跡星愛',
+      '煉獄散', '勇心炎丸', '心眼衣斗', '姫煌々愛', '宝冠黄金大王', '紗音瑠', '愛羅武勇', '魔法娘娘', '火星親友', '黄熊親方'
+    ];
+    return names[Math.floor(Math.random() * names.length)];
+  };
+
+  const [playerName, setPlayerName] = useState('');
+
+  // コンポーネントマウント時にランダム名前を設定
+  useEffect(() => {
+    setPlayerName(getRandomName());
+  }, []);
+
+  const handleStartGame = () => {
+    const name = playerName.trim() || getRandomName();
+    onInitializeGame(name);
+  };
+
   return (
     <>
       <UpdateNotification />
@@ -18,9 +41,28 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartNewGame }) => {
             <p className="text-base mb-6 text-gray-300 font-medium px-2">
             生きている間に可能な限り金を稼ごう！
             </p>
+            
+            {/* 名前入力フィールド */}
+            <div className="mb-6">
+              <label htmlFor="player-name" className="block text-sm font-medium text-gray-300 mb-2">
+                🏷️ プレイヤー名
+              </label>
+              <input
+                id="player-name"
+                name="playerName"
+                type="text"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-white text-center"
+                placeholder="あなたの名前"
+                maxLength={20}
+                autoComplete="name"
+              />
+            </div>
+            
             <div className="space-y-4">
               <button
-                onClick={onStartNewGame}
+                onClick={handleStartGame}
                 className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-xl transform hover:scale-105 transition-all border border-red-500"
               >
                 🎲 人生ガチャ開始

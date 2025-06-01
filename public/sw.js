@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eccentric-life-game-v1.3';
+const CACHE_NAME = 'eccentric-life-game-v1.5';
 const urlsToCache = [
   '/',
   '/manifest.json',

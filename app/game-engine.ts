@@ -66,6 +66,16 @@ export class GameEngine {
       initialStatus.allowance = this.randomBetween(1, 40);
     }
 
+    // 10%の確率で不労所得状態を付与（1-10の範囲）
+    if (Math.random() < 0.1) {
+      initialStatus.passiveIncome = this.randomBetween(1, 10);
+    }
+
+    // 40%の確率でトラウマ状態を付与（1-3の範囲）
+    if (Math.random() < 0.4) {
+      initialStatus.trauma = this.randomBetween(1, 3);
+    }
+
     this.state = {
       playerName: params.playerName,
       status: initialStatus,
@@ -318,6 +328,16 @@ export class GameEngine {
       if (newStatus.allowance <= 0) {
         delete newStatus.allowance;
       }
+    }
+
+    // 不労所得効果の適用
+    if (newStatus.passiveIncome && newStatus.passiveIncome >= 1) {
+      newStatus.wealth += newStatus.passiveIncome * 100; // 不労所得レベル×100万円
+    }
+
+    // トラウマ効果の適用
+    if (newStatus.trauma && newStatus.trauma >= 1) {
+      newStatus.ability -= newStatus.trauma * 5; // トラウマレベル×5の能力減少
     }
 
     // 他の状態効果もここに追加可能

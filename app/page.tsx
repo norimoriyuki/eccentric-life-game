@@ -2,17 +2,16 @@
 
 import React, { useState, useRef } from 'react';
 import { GameEngine } from './game-engine';
-import { GameState, Card, CardDrawResult, GameOverReason, GameStatus } from './types';
+import { GameState, Card, CardDrawResult, GameOverReason, GameStatus, EffectType, CardSelectionResult, GameInitParams, GameTurnHistory, CardEffectResult } from './types';
 import { CardExecutionOverlay } from './components/CardExecutionOverlay';
 import { HomeScreen } from './components/HomeScreen';
-import { InitScreen } from './components/InitScreen';
 import { MainGameScreen } from './components/MainGameScreen';
 import { GameOverScreen } from './components/GameOverScreen';
+import { positiveCards, negativeCards } from './cards';
 
 // ゲーム画面の種類
 enum GameScreen {
   HOME = 'home',
-  INIT = 'init',
   MAIN = 'main',
   CARD_EFFECT = 'card_effect',
   GAME_OVER = 'game_over'
@@ -54,39 +53,14 @@ const EccentricLifeGame: React.FC = () => {
   // 重複実行防止用のフラグ
   const isExecutingRef = useRef(false);
 
-  const commonNames = [
-    '太郎', '花子', '一郎', '美咲', '健太',
-    '由美', '大輔', '彩', '翔', '麻衣',
-    '慶太', '雅子', '貴史', '麗華', '優介',
-    '美樹', '章吾', '優香', '雅人', '千尋',
-    '龍之介', '千代姫', '鳳凰', '紫苑', '刀牙',
-    '桜花', '雷神', '月華', '炎皇', '雪姫',
-    '黄熊', '煉獄散', '勇心炎丸', '心眼衣斗', '姫煌々',
-    '紗音瑠', '愛羅武勇', '魔法娘娘', '火星親友', '宝冠黄金大王'
-  ];
-
-  // ランダムな名前を生成
-  const getRandomName = () => {
-    return commonNames[Math.floor(Math.random() * commonNames.length)];
-  };
-
-  // ゲーム開始
-  const startNewGame = () => {
-    setPlayerName(getRandomName()); // ランダムな名前をデフォルト値として設定
-    setCurrentScreen(GameScreen.INIT);
-  };
-
   // ゲーム初期化
-  const initializeGame = () => {
-    if (!playerName.trim()) {
-      alert('プレイヤー名を入力してください');
-      return;
-    }
-
-    const state = gameEngine.initializeGame({ playerName });
-    setGameState(state);
-    setCurrentScreen(GameScreen.MAIN);
+  const initializeGame = (playerName: string) => {
+    setPlayerName(playerName);
+    const initialParams: GameInitParams = { playerName };
+    const newGameState = gameEngine.initializeGame(initialParams);
+    setGameState(newGameState);
     drawNewCards();
+    setCurrentScreen(GameScreen.MAIN);
   };
 
   // 新しいカードを引く
@@ -248,6 +222,18 @@ const EccentricLifeGame: React.FC = () => {
           }
         }
         
+        if (previewStatusAfter.passiveIncome && previewStatusAfter.passiveIncome >= 1) {
+          const passiveIncomeAmount = previewStatusAfter.passiveIncome * 100;
+          previewStatusAfter.wealth += passiveIncomeAmount;
+          descriptions.push(`不労所得効果: 資産+${passiveIncomeAmount}万円（レベル${previewStatusAfter.passiveIncome}×100万円）`);
+        }
+        
+        if (previewStatusAfter.trauma && previewStatusAfter.trauma >= 1) {
+          const abilityDecrease = previewStatusAfter.trauma * 5;
+          previewStatusAfter.ability -= abilityDecrease;
+          descriptions.push(`トラウマ効果: 能力-${abilityDecrease}（レベル${previewStatusAfter.trauma}×5）`);
+        }
+        
         previewStatusAfter.age += 1;
         descriptions.push('年齢+1歳');
         
@@ -342,18 +328,7 @@ const EccentricLifeGame: React.FC = () => {
 
   // 画面レンダリング
   if (currentScreen === GameScreen.HOME) {
-    return <HomeScreen onStartNewGame={startNewGame} />;
-  }
-
-  if (currentScreen === GameScreen.INIT) {
-    return (
-      <InitScreen
-        playerName={playerName}
-        setPlayerName={setPlayerName}
-        onInitializeGame={initializeGame}
-        onGoBack={() => setCurrentScreen(GameScreen.HOME)}
-      />
-    );
+    return <HomeScreen onInitializeGame={initializeGame} />;
   }
 
   if (currentScreen === GameScreen.MAIN) {

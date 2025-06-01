@@ -2,12 +2,11 @@
 
 import React, { useState, useRef } from 'react';
 import { GameEngine } from './game-engine';
-import { GameState, Card, CardDrawResult, GameOverReason, GameStatus, EffectType, CardSelectionResult, GameInitParams, GameTurnHistory, CardEffectResult } from './types';
+import { GameState, Card, CardDrawResult, GameOverReason, GameStatus, GameInitParams } from './types';
 import { CardExecutionOverlay } from './components/CardExecutionOverlay';
 import { HomeScreen } from './components/HomeScreen';
 import { MainGameScreen } from './components/MainGameScreen';
 import { GameOverScreen } from './components/GameOverScreen';
-import { positiveCards, negativeCards } from './cards';
 
 // ゲーム画面の種類
 enum GameScreen {
@@ -38,7 +37,7 @@ const EccentricLifeGame: React.FC = () => {
   const [gameEngine] = useState(new GameEngine());
   const [currentScreen, setCurrentScreen] = useState<GameScreen>(GameScreen.HOME);
   const [gameState, setGameState] = useState<GameState>(gameEngine.getState());
-  const [playerName, setPlayerName] = useState('');
+  const [_playerName, setPlayerName] = useState('');
   const [drawnCards, setDrawnCards] = useState<CardDrawResult | null>(null);
   const [selectedPositiveCards, setSelectedPositiveCards] = useState<Card[]>([]);
   

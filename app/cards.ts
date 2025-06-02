@@ -73,33 +73,6 @@ export const positiveCards: Card[] = [
   },
 
   {
-    id: 'pension',
-    name: '年金',
-    type: CardType.POSITIVE,
-    description: '資産+40万円',
-    iconSource: '/card-images/pension.png',
-    effect: {
-      type: EffectType.STATUS_CHANGE,
-      execute: (status: GameStatus): CardEffectResult => {
-        const newStatus = { ...status };
-        newStatus.wealth += 40;
-        
-        return {
-          newStatus,
-          description: '資産+40万円'
-        };
-      }
-    },
-    baseAppearanceRate: 0.8,
-    probabilityCalculator: (status) => {
-      // 年齢が高いほど出現率UP
-      if (status.age >= 60) return 2.0;
-      if (status.age >= 40) return 1.2;
-      return 0.6;
-    }
-  },
-
-  {
     id: 'investment',
     name: '投資',
     type: CardType.POSITIVE,
@@ -128,7 +101,7 @@ export const positiveCards: Card[] = [
 
   {
     id: 'stocks',
-    name: '株取引',
+    name: 'デイトレード',
     type: CardType.POSITIVE,
     description: '資産×1.2倍',
     iconSource: '/dummy.png',
@@ -156,7 +129,7 @@ export const positiveCards: Card[] = [
 
   {
     id: 'business',
-    name: '経営',
+    name: '新規事業',
     type: CardType.POSITIVE,
     description: '資産×1.4倍',
     iconSource: '/dummy.png',
@@ -179,32 +152,6 @@ export const positiveCards: Card[] = [
       if (status.ability >= 80 && status.wealth >= 200) return 1.2;
       if (status.ability >= 60 && status.wealth >= 100) return 0.8;
       return 0.4;
-    }
-  },
-
-  {
-    id: 'wealth_doubler',
-    name: '大当たり',
-    type: CardType.POSITIVE,
-    description: '資産×2倍',
-    iconSource: '/dummy.png',
-    effect: {
-      type: EffectType.STATUS_CHANGE,
-      execute: (status: GameStatus): CardEffectResult => {
-        const newStatus = { ...status };
-        const oldWealth = newStatus.wealth;
-        newStatus.wealth *= 2;
-        
-        return {
-          newStatus,
-          description: `大当たり！資産が${Math.floor(oldWealth)}万円から${Math.floor(newStatus.wealth)}万円に倍増`
-        };
-      }
-    },
-    baseAppearanceRate: 0.05,
-    probabilityCalculator: (status) => {
-      // 極レアカード、善良さが高いとわずかに出現率UP
-      return status.goodness >= 80 ? 0.08 : 0.05;
     }
   },
 
@@ -732,7 +679,7 @@ export const positiveCards: Card[] = [
         
         return {
           newStatus,
-          description: '独裁政権樹立で善良さ+9999、不労所得+30000（毎ターン+300万円）'
+          description: '独裁政権樹立で善良さ+9999、不労所得+30000（毎ターン+3億円）'
         };
       }
     },
@@ -746,6 +693,160 @@ export const positiveCards: Card[] = [
         return 0.05;
       }
       return 0; // 善良さ1000未満では出現しない
+    }
+  },
+
+  {
+    id: 'security',
+    name: '警備',
+    type: CardType.POSITIVE,
+    description: '警護+1、資産-500万円',
+    iconSource: '/card-images/business.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.security = (newStatus.security || 0) + 1;
+        newStatus.wealth -= 500;
+        
+        return {
+          newStatus,
+          description: '警備雇用で警護+1、資産-500万円'
+        };
+      }
+    },
+    baseAppearanceRate: 0.8,
+    probabilityCalculator: (status) => {
+      // 資産が多いほど出現率UP、善良さが高いほど出現率UP
+      const wealthMultiplier = status.wealth >= 1000 ? 1.5 : status.wealth >= 500 ? 1.2 : 0.8;
+      const goodnessMultiplier = status.goodness >= 100 ? 1.3 : status.goodness >= 50 ? 1.1 : 1.0;
+      return wealthMultiplier * goodnessMultiplier;
+    }
+  },
+
+  {
+    id: 'yakuza_protection',
+    name: 'ケツ持ち',
+    type: CardType.POSITIVE,
+    description: '警護+3、資産-1000万円、善良さ-100',
+    iconSource: '/card-images/cult_establishment.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.security = (newStatus.security || 0) + 3;
+        newStatus.wealth -= 1000;
+        newStatus.goodness -= 100;
+        
+        return {
+          newStatus,
+          description: 'ヤクザとの契約で警護+3、資産-1000万円、善良さ-100'
+        };
+      }
+    },
+    baseAppearanceRate: 0.4,
+    probabilityCalculator: (status) => {
+      // 善良さが低いほど出現率UP、資産が十分にあると出現率UP
+      const goodnessMultiplier = status.goodness <= 0 ? 2.0 : status.goodness <= 50 ? 1.5 : 1.0;
+      const wealthMultiplier = status.wealth >= 2000 ? 1.3 : status.wealth >= 1000 ? 1.0 : 0.5;
+      return goodnessMultiplier * wealthMultiplier;
+    }
+  },
+
+  {
+    id: 'great_invention',
+    name: '大発明',
+    type: CardType.POSITIVE,
+    description: '善良さ+200、不労所得+10、資産+10000万円',
+    iconSource: '/card-images/human_modification.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.goodness += 200;
+        newStatus.passiveIncome = (newStatus.passiveIncome || 0) + 10;
+        newStatus.wealth += 10000;
+        
+        return {
+          newStatus,
+          description: '大発明で善良さ+200、不労所得+10（毎ターン+1000万円）、資産+10000万円'
+        };
+      }
+    },
+    baseAppearanceRate: 0.3,
+    probabilityCalculator: (status) => {
+      // 能力250以上でのみ出現
+      if (status.ability >= 250) {
+        // 能力が高いほど出現率UP
+        if (status.ability >= 350) return 1.0;
+        if (status.ability >= 300) return 0.7;
+        return 0.3;
+      }
+      return 0; // 能力250未満では出現しない
+    }
+  },
+
+  {
+    id: 'business_reform',
+    name: '事業改革',
+    type: CardType.POSITIVE,
+    description: '複利+3',
+    iconSource: '/card-images/stocks.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const oldCompound = newStatus.compound || 0;
+        newStatus.compound = oldCompound + 3;
+        
+        return {
+          newStatus,
+          description: `事業改革により複利が${oldCompound}から${newStatus.compound}に向上（毎ターン資産増加率+30%）`
+        };
+      }
+    },
+    baseAppearanceRate: 0.5,
+    probabilityCalculator: (status) => {
+      // 能力200以上かつ複利5以上でのみ出現
+      if (status.ability >= 200 && (status.compound || 0) >= 5) {
+        // 能力と複利レベルが高いほど出現率UP
+        const abilityMultiplier = status.ability >= 300 ? 1.5 : status.ability >= 250 ? 1.2 : 1.0;
+        const compoundMultiplier = (status.compound || 0) >= 10 ? 1.3 : 1.0;
+        return abilityMultiplier * compoundMultiplier;
+      }
+      return 0; // 条件を満たさない場合は出現しない
+    }
+  },
+
+  {
+    id: 'charity',
+    name: '慈善活動',
+    type: CardType.POSITIVE,
+    description: '資産-1000万円、善良さ+100',
+    iconSource: '/card-images/social_welfare.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.wealth -= 1000;
+        newStatus.goodness += 100;
+        
+        return {
+          newStatus,
+          description: '慈善活動で資産-1000万円、善良さ+100'
+        };
+      }
+    },
+    baseAppearanceRate: 1.0,
+    probabilityCalculator: (status) => {
+      // 資産1000万円以上で出現
+      if (status.wealth >= 1000) {
+        // 資産が多いほど出現率UP、善良さが高いほど出現率UP
+        const wealthMultiplier = status.wealth >= 5000 ? 1.5 : status.wealth >= 2000 ? 1.2 : 1.0;
+        const goodnessMultiplier = status.goodness >= 100 ? 1.3 : status.goodness >= 50 ? 1.1 : 1.0;
+        return wealthMultiplier * goodnessMultiplier;
+      }
+      return 0; // 資産1000万円未満では出現しない
     }
   },
 ];
@@ -804,33 +905,6 @@ export const negativeCards: Card[] = [
       if (status.goodness <= 20) return 2.5;
       if (status.goodness <= 40) return 1.5;
       if (status.goodness >= 80) return 0.3;
-      return 1.0;
-    }
-  },
-
-  {
-    id: 'traffic_violation',
-    name: '交通違反',
-    type: CardType.NEGATIVE,
-    description: '資産-80万円',
-    iconSource: '/card-images/traffic_violation.png',
-    effect: {
-      type: EffectType.STATUS_CHANGE,
-      execute: (status: GameStatus): CardEffectResult => {
-        const newStatus = { ...status };
-        newStatus.wealth -= 80;
-        
-        return {
-          newStatus,
-          description: '資産-80万円（罰金）'
-        };
-      }
-    },
-    baseAppearanceRate: 1.0,
-    probabilityCalculator: (status) => {
-      // 善良さが低いと出現率UP
-      if (status.goodness <= 30) return 1.8;
-      if (status.goodness >= 70) return 0.6;
       return 1.0;
     }
   },
@@ -1208,6 +1282,212 @@ export const negativeCards: Card[] = [
         return 2.0;
       }
       return 0; // 善良さ-3000より大きい場合は出現しない
+    }
+  },
+
+  {
+    id: 'assassination',
+    name: '暗殺',
+    type: CardType.NEGATIVE,
+    description: '警護なしで即ゲームオーバー、警護ありで警護-1',
+    iconSource: '/card-images/assassination.png',
+    effect: {
+      type: EffectType.GAME_OVER,
+      gameOverReason: GameOverReason.ASSASSINATION,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const currentSecurity = status.security || 0;
+        
+        if (currentSecurity > 0) {
+          // 警護があれば警護-1で生存
+          newStatus.security = currentSecurity - 1;
+          return {
+            newStatus,
+            description: `暗殺者を警護が撃退、警護レベル${currentSecurity}→${newStatus.security}`
+          };
+        } else {
+          // 警護がなければゲームオーバー
+          return {
+            isGameOver: true,
+            gameOverReason: GameOverReason.ASSASSINATION,
+            description: '警護なしで暗殺される - ゲームオーバー'
+          };
+        }
+      }
+    },
+    baseAppearanceRate: 1.0,
+    probabilityCalculator: (status) => {
+      // 善良さ1000以上または500以下で出現
+      if (status.goodness >= 1000 || status.goodness <= -500) {
+        // 極端な善良さほど出現率UP
+        if (status.goodness >= 2000 || status.goodness <= -1000) return 2.5;
+        if (status.goodness >= 1500 || status.goodness <= -1500) return 1.8;
+        return 1.0;
+      }
+      return 0; // 条件を満たさない場合は出現しない
+    }
+  },
+
+  {
+    id: 'kidnapping',
+    name: '誘拐',
+    type: CardType.NEGATIVE,
+    description: '警護なしで資産0、警護ありで警護-1',
+    iconSource: '/card-images/kidnapping.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const currentSecurity = status.security || 0;
+        
+        if (currentSecurity > 0) {
+          // 警護があれば警護-1で資産は守られる
+          newStatus.security = currentSecurity - 1;
+          return {
+            newStatus,
+            description: `誘拐を警護が阻止、警護レベル${currentSecurity}→${newStatus.security}`
+          };
+        } else {
+          // 警護がなければ資産を全て失う
+          const lostWealth = newStatus.wealth;
+          newStatus.wealth = 0;
+          return {
+            newStatus,
+            description: `誘拐され身代金${Math.floor(lostWealth)}万円を支払い、資産が0になる`
+          };
+        }
+      }
+    },
+    baseAppearanceRate: 0.8,
+    probabilityCalculator: (status) => {
+      // 資産100000以上で出現
+      if (status.wealth >= 100000) {
+        // 資産が多いほど出現率UP
+        if (status.wealth >= 500000) return 3.0;
+        if (status.wealth >= 200000) return 2.0;
+        return 0.8;
+      }
+      return 0; // 資産100000未満では出現しない
+    }
+  },
+
+  {
+    id: 'scandal',
+    name: 'スキャンダル',
+    type: CardType.NEGATIVE,
+    description: '善良さ-200',
+    iconSource: '/card-images/scandal.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.goodness -= 200;
+        
+        return {
+          newStatus,
+          description: 'スキャンダル発覚で善良さ-200'
+        };
+      }
+    },
+    baseAppearanceRate: 1.2,
+    probabilityCalculator: (status) => {
+      // 資産10000以上で出現
+      if (status.wealth >= 10000) {
+        // 資産が多いほど出現率UP
+        if (status.wealth >= 50000) return 2.5;
+        if (status.wealth >= 20000) return 1.8;
+        return 1.2;
+      }
+      return 0; // 資産10000未満では出現しない
+    }
+  },
+
+  {
+    id: 'marriage_fraud',
+    name: '結婚詐欺',
+    type: CardType.NEGATIVE,
+    description: '資産-1000万円',
+    iconSource: '/card-images/marriage_fraud.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.wealth -= 1000;
+        
+        return {
+          newStatus,
+          description: '結婚詐欺に遭い資産-1000万円'
+        };
+      }
+    },
+    baseAppearanceRate: 1.0,
+    probabilityCalculator: (status) => {
+      // 能力50以下で出現
+      if (status.ability <= 50) {
+        // 能力が低いほど出現率UP
+        if (status.ability <= 20) return 2.5;
+        if (status.ability <= 35) return 1.8;
+        return 1.0;
+      }
+      return 0; // 能力50より高い場合は出現しない
+    }
+  },
+
+  {
+    id: 'investment_fraud',
+    name: '投資詐欺',
+    type: CardType.NEGATIVE,
+    description: '資産×0.5倍',
+    iconSource: '/card-images/investment_fraud.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const oldWealth = newStatus.wealth;
+        newStatus.wealth *= 0.5;
+        
+        return {
+          newStatus,
+          description: `投資詐欺に遭い資産が${Math.floor(oldWealth)}万円から${Math.floor(newStatus.wealth)}万円に半減`
+        };
+      }
+    },
+    baseAppearanceRate: 0.8,
+    probabilityCalculator: (status) => {
+      // 能力100以下で出現
+      if (status.ability <= 100) {
+        // 能力が低いほど出現率UP、資産が多いほど出現率UP
+        const abilityMultiplier = status.ability <= 50 ? 2.0 : status.ability <= 75 ? 1.5 : 1.0;
+        const wealthMultiplier = status.wealth >= 1000 ? 1.5 : status.wealth >= 500 ? 1.2 : 0.8;
+        return abilityMultiplier * wealthMultiplier;
+      }
+      return 0; // 能力100より高い場合は出現しない
+    }
+  },
+
+  {
+    id: 'false_accusation',
+    name: '冤罪',
+    type: CardType.NEGATIVE,
+    description: '善良さ-100、資産-500万円',
+    iconSource: '/card-images/false_accusation.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.goodness -= 100;
+        newStatus.wealth -= 500;
+        
+        return {
+          newStatus,
+          description: '冤罪により善良さ-100、弁護士費用等で資産-500万円'
+        };
+      }
+    },
+    baseAppearanceRate: 0.6,
+    probabilityCalculator: (status) => {
+      // 常に一定確率で出現（条件なし）
+      return 0.6;
     }
   },
 ];

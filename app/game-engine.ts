@@ -53,12 +53,12 @@ export class GameEngine {
       wealth: params.initialStatus.wealth ?? this.randomBetween(-500, 1000),
       goodness: params.initialStatus.goodness ?? this.randomBetween(0, 100),
       ability: params.initialStatus.ability ?? this.randomBetween(0, 100),
-      age: params.initialStatus.age ?? this.randomBetween(18, 60)
+      age: params.initialStatus.age ?? this.randomBetween(18, 22)
     } : {
       wealth: this.randomBetween(-500, 1000),
       goodness: this.randomBetween(-50, 100),
-      ability: this.randomBetween(0, 200),
-      age: this.randomBetween(18, 60)
+      ability: this.randomBetween(0, 100),
+      age: this.randomBetween(18, 22)
     };
 
     // 50%の確率で仕送り状態を付与（1-40の範囲）

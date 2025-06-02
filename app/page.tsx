@@ -40,7 +40,7 @@ const EccentricLifeGame: React.FC = () => {
   const [_playerName, setPlayerName] = useState('');
   const [drawnCards, setDrawnCards] = useState<CardDrawResult | null>(null);
   const [selectedPositiveCards, setSelectedPositiveCards] = useState<Card[]>([]);
-  
+
   // カード実行オーバーレイ用の状態
   const [isShowingCardExecution, setIsShowingCardExecution] = useState(false);
   const [phaseExecutionDetails, setPhaseExecutionDetails] = useState<PhaseExecutionDetail[]>([]);
@@ -113,7 +113,7 @@ const EccentricLifeGame: React.FC = () => {
     
     // ゲーム状態を更新
     setGameState(gameEngine.getState());
-    
+
     // ゲームオーバーチェック
     if (result.isGameOver) {
       setCurrentScreen(GameScreen.GAME_OVER);
@@ -340,7 +340,7 @@ const EccentricLifeGame: React.FC = () => {
           onTogglePositiveCard={togglePositiveCard}
           onExecuteCards={executeCards}
           onCommitSuicide={commitSuicide}
-        />
+                    />
 
         {/* オーバーレイ表示 */}
         {isShowingCardExecution && phaseExecutionDetails.length > 0 && (
@@ -351,8 +351,8 @@ const EccentricLifeGame: React.FC = () => {
             currentIndex={currentExecutionPhase === ExecutionPhase.POSITIVE ? 0 : currentExecutionPhase === ExecutionPhase.NEGATIVE ? 1 : 2}
             totalCards={3}
           />
-        )}
-      </>
+              )}
+            </>
     );
   }
 

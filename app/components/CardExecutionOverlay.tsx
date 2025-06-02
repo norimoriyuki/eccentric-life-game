@@ -184,7 +184,7 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
         {/* 状態効果の表示 */}
         {phase !== ExecutionPhase.STATE_EFFECTS && (
           <div className="mb-6">
-            <h4 className="text-lg font-bold text-purple-400 mb-2 text-center">🔮 状態効果</h4>
+            <h4 className="text-lg font-bold text-purple-400 mb-2 text-center">状態効果</h4>
             <div className="flex flex-wrap gap-1 justify-center">
               {Object.entries(statusAfter)
                 .filter(([key, value]) => 

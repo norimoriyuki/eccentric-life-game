@@ -865,7 +865,7 @@ export const negativeCards: Card[] = [
     effect: {
       type: EffectType.GAME_OVER,
       gameOverReason: GameOverReason.OLD_AGE,
-      execute: (__status: GameStatus): CardEffectResult => {
+      execute: (_status: GameStatus): CardEffectResult => {
         return {
           isGameOver: true,
           gameOverReason: GameOverReason.OLD_AGE,
@@ -1485,7 +1485,7 @@ export const negativeCards: Card[] = [
       }
     },
     baseAppearanceRate: 0.6,
-    probabilityCalculator: (status) => {
+    probabilityCalculator: (_status) => {
       // 常に一定確率で出現（条件なし）
       return 0.6;
     }

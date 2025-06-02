@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Card } from '../types';
 
 interface CardComponentProps {
@@ -34,10 +35,13 @@ export const CardComponent: React.FC<CardComponentProps> = ({
 
     {/* 大きなカードアイコン */}
     <div className="w-20 h-20 mb-1 flex items-center justify-center">
-      <img 
+      <Image 
         src={card.iconSource} 
         alt={card.name}
-        className="w-16 h-16 object-cover"
+        width={64}
+        height={64}
+        className="object-cover"
+        unoptimized
         onError={(e) => {
           // 画像が読み込めない場合は代替文字を表示
           const target = e.target as HTMLImageElement;
@@ -45,7 +49,7 @@ export const CardComponent: React.FC<CardComponentProps> = ({
           target.nextElementSibling!.textContent = '🎴';
         }}
       />
-      <span className="text-3xl hidden">🎴</span>
+      <span className="text-3xl hidden">��</span>
     </div>
     
     {/* カード説明 */}

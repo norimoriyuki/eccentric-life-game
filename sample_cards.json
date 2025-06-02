@@ -1,0 +1,29 @@
+{
+  "cards": [
+    {
+      "id": "fire_dragon",
+      "name": "Fire Dragon",
+      "description": "A powerful dragon breathing flames"
+    },
+    {
+      "id": "ice_crystal",
+      "name": "Ice Crystal",
+      "description": "A magical ice crystal with freezing powers"
+    },
+    {
+      "id": "lightning_bolt",
+      "name": "Lightning Bolt",
+      "description": "A swift lightning attack spell"
+    },
+    {
+      "id": "healing_potion",
+      "name": "Healing Potion",
+      "description": "A magical potion that restores health"
+    },
+    {
+      "id": "shield_warrior",
+      "name": "Shield Warrior",
+      "description": "A brave warrior with a protective shield"
+    }
+  ]
+} 

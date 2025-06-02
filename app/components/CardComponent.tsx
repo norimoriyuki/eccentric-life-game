@@ -25,12 +25,31 @@ export const CardComponent: React.FC<CardComponentProps> = ({
       }
       ${isSelected ? 'ring-2 ring-yellow-400' : ''}
       ${disabled ? 'opacity-70 cursor-not-allowed hover:scale-100' : ''}
-      shadow-lg
+      shadow-lg flex flex-col items-center text-center
     `}
     onClick={disabled ? undefined : onClick}
   >
-    <h3 className="font-bold text-sm mb-2 text-white">{card.name}</h3>
-    <div className="text-xs bg-black/40 p-2 rounded border border-gray-600 text-gray-100">
+    {/* カード名 */}
+    <h2 className="font-bold text-sm mb-2 text-white">{card.name}</h2>
+
+    {/* 大きなカードアイコン */}
+    <div className="w-20 h-20 mb-1 flex items-center justify-center">
+      <img 
+        src={card.iconSource} 
+        alt={card.name}
+        className="w-16 h-16 object-cover"
+        onError={(e) => {
+          // 画像が読み込めない場合は代替文字を表示
+          const target = e.target as HTMLImageElement;
+          target.style.display = 'none';
+          target.nextElementSibling!.textContent = '🎴';
+        }}
+      />
+      <span className="text-3xl hidden">🎴</span>
+    </div>
+    
+    {/* カード説明 */}
+    <div className="text-xs bg-black/40 p-1 rounded border border-gray-600 text-gray-100 w-full">
       {card.description}
     </div>
   </div>

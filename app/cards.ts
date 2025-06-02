@@ -16,7 +16,8 @@ export const positiveCards: Card[] = [
     id: 'labor',
     name: '労働',
     type: CardType.POSITIVE,
-    description: '能力の値だけ稼ぐ、善良さ+5、能力+5',
+    description: '資産+能力値、善良さ+5、能力+5',
+    iconSource: '/card-images/labor.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -45,7 +46,8 @@ export const positiveCards: Card[] = [
     id: 'shinogi',
     name: 'シノギ',
     type: CardType.POSITIVE,
-    description: '能力の値だけ稼ぐ、善良さ-10、能力+5',
+    description: '資産+能力値、善良さ-10、能力+5',
+    iconSource: '/card-images/shinogi.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -75,6 +77,7 @@ export const positiveCards: Card[] = [
     name: '年金',
     type: CardType.POSITIVE,
     description: '資産+40万円',
+    iconSource: '/card-images/pension.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -100,7 +103,8 @@ export const positiveCards: Card[] = [
     id: 'investment',
     name: '投資',
     type: CardType.POSITIVE,
-    description: '複利状態+1（毎ターン資産10%増加）',
+    description: '複利+1（毎ターン資産+10%）',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -126,7 +130,8 @@ export const positiveCards: Card[] = [
     id: 'stocks',
     name: '株取引',
     type: CardType.POSITIVE,
-    description: '資産が1.2倍になる',
+    description: '資産×1.2倍',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -153,7 +158,8 @@ export const positiveCards: Card[] = [
     id: 'business',
     name: '経営',
     type: CardType.POSITIVE,
-    description: '資産が1.4倍になる',
+    description: '資産×1.4倍',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -180,7 +186,8 @@ export const positiveCards: Card[] = [
     id: 'wealth_doubler',
     name: '大当たり',
     type: CardType.POSITIVE,
-    description: '資産が2倍になる',
+    description: '資産×2倍',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -205,7 +212,8 @@ export const positiveCards: Card[] = [
     id: 'isekai_reincarnation',
     name: '異世界転生',
     type: CardType.POSITIVE,
-    description: '能力保持、他ステータス乱数、状態リセット、50%で仕送り取得',
+    description: '能力保持、他ステータス乱数、状態リセット',
+    iconSource: '/card-images/isekai_reincarnation.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -250,7 +258,8 @@ export const positiveCards: Card[] = [
     id: 'surrender',
     name: '自首',
     type: CardType.POSITIVE,
-    description: '善良さのマイナスの値の10%の年数服役、善良さ0に回復',
+    description: '善良さ0に回復、服役年数分年齢+',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -285,7 +294,8 @@ export const positiveCards: Card[] = [
     id: 'bribery',
     name: '賄賂',
     type: CardType.POSITIVE,
-    description: '資産-1000万円で善良さ0に回復（資産不足なら失敗）',
+    description: '資産-1000万円、善良さ0に回復',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -331,6 +341,7 @@ export const positiveCards: Card[] = [
     name: 'フランチャイズ',
     type: CardType.POSITIVE,
     description: '不労所得+1、資産-1000万円',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -358,6 +369,7 @@ export const positiveCards: Card[] = [
     name: '経営相続',
     type: CardType.POSITIVE,
     description: '不労所得+5',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -384,6 +396,7 @@ export const positiveCards: Card[] = [
     name: 'マンション投資',
     type: CardType.POSITIVE,
     description: '不労所得+100、資産-100000万円',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -411,6 +424,7 @@ export const positiveCards: Card[] = [
     name: '闇バイト',
     type: CardType.POSITIVE,
     description: 'トラウマ+1、善良さ-100、資産+100万円',
+    iconSource: '/card-images/underground_job.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -439,6 +453,7 @@ export const positiveCards: Card[] = [
     name: '汚れ仕事',
     type: CardType.POSITIVE,
     description: 'トラウマ+1、善良さ-50、資産+200万円',
+    iconSource: '/card-images/dirty_work.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -466,7 +481,8 @@ export const positiveCards: Card[] = [
     id: 'cult_establishment',
     name: 'カルト設立',
     type: CardType.POSITIVE,
-    description: '善良さ-1000、不労所得+10（能力100以上で出現）',
+    description: '善良さ-1000、不労所得+10',
+    iconSource: '/card-images/cult_establishment.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -498,6 +514,7 @@ export const positiveCards: Card[] = [
     name: 'ドーピング',
     type: CardType.POSITIVE,
     description: '善良さ-10、能力+30',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -525,6 +542,7 @@ export const positiveCards: Card[] = [
     name: '勉強',
     type: CardType.POSITIVE,
     description: '善良さ+5、能力+10',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -551,7 +569,8 @@ export const positiveCards: Card[] = [
     id: 'land_fraud',
     name: '地面師',
     type: CardType.POSITIVE,
-    description: '資産+10000万円、善良さ-200（能力100以上で出現）',
+    description: '資産+10000万円、善良さ-200',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -583,6 +602,7 @@ export const positiveCards: Card[] = [
     name: '人体改造',
     type: CardType.POSITIVE,
     description: '資産-1000万円、能力+50',
+    iconSource: '/card-images/human_modification.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -604,6 +624,130 @@ export const positiveCards: Card[] = [
       return 0.3; // 資産不足でも低確率で出現
     }
   },
+
+  {
+    id: 'social_assistance',
+    name: '生活保護',
+    type: CardType.POSITIVE,
+    description: '資産+30万円',
+    iconSource: '/card-images/social_welfare.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.wealth += 30;
+        
+        return {
+          newStatus,
+          description: '生活保護で資産+30万円'
+        };
+      }
+    },
+    baseAppearanceRate: 1.5,
+    probabilityCalculator: (status) => {
+      // 資産200以下のときのみ出現
+      if (status.wealth <= 200) {
+        // 資産が少ないほど出現率UP
+        if (status.wealth <= 0) return 3.0;
+        if (status.wealth <= 50) return 2.5;
+        if (status.wealth <= 100) return 2.0;
+        return 1.5;
+      }
+      return 0; // 資産200より多い場合は出現しない
+    }
+  },
+
+  {
+    id: 'propaganda',
+    name: 'プロパガンダ',
+    type: CardType.POSITIVE,
+    description: '資産-1000万円、善良さ+50',
+    iconSource: '/dummy.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.wealth -= 1000;
+        newStatus.goodness += 50;
+        
+        return {
+          newStatus,
+          description: 'プロパガンダで資産-1000万円、善良さ+50'
+        };
+      }
+    },
+    baseAppearanceRate: 0.7,
+    probabilityCalculator: (status) => {
+      // 能力が高いと出現率UP、資産が十分にあると出現率UP
+      const abilityMultiplier = status.ability >= 80 ? 1.5 : status.ability >= 60 ? 1.2 : 1.0;
+      const wealthMultiplier = status.wealth >= 2000 ? 1.3 : status.wealth >= 1000 ? 1.0 : 0.5;
+      return abilityMultiplier * wealthMultiplier;
+    }
+  },
+
+  {
+    id: 'ipo',
+    name: 'IPO',
+    type: CardType.POSITIVE,
+    description: '複利を倍にする',
+    iconSource: '/dummy.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const currentCompound = newStatus.compound || 0;
+        newStatus.compound = currentCompound * 2;
+        
+        return {
+          newStatus,
+          description: `上場により複利が${currentCompound}から${newStatus.compound}に倍増`
+        };
+      }
+    },
+    baseAppearanceRate: 0.3,
+    probabilityCalculator: (status) => {
+      // 善良さ200以上かつ複利3以上の場合のみ出現
+      if (status.goodness >= 200 && (status.compound || 0) >= 3) {
+        // 善良さと複利レベルが高いほど出現率UP
+        const goodnessMultiplier = status.goodness >= 300 ? 1.5 : 1.0;
+        const compoundMultiplier = (status.compound || 0) >= 5 ? 1.3 : 1.0;
+        return goodnessMultiplier * compoundMultiplier;
+      }
+      return 0; // 条件を満たさない場合は出現しない
+    }
+  },
+
+  {
+    id: 'dictatorship',
+    name: '独裁',
+    type: CardType.POSITIVE,
+    description: '善良さ+9999、不労所得+30000',
+    iconSource: '/dummy.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.goodness += 9999;
+        newStatus.passiveIncome = (newStatus.passiveIncome || 0) + 30000;
+        
+        return {
+          newStatus,
+          description: '独裁政権樹立で善良さ+9999、不労所得+30000（毎ターン+300万円）'
+        };
+      }
+    },
+    baseAppearanceRate: 0.05,
+    probabilityCalculator: (status) => {
+      // 善良さ1000以上のときのみ出現
+      if (status.goodness >= 1000) {
+        // 善良さが高いほど出現率UP
+        if (status.goodness >= 2000) return 0.15;
+        if (status.goodness >= 1500) return 0.1;
+        return 0.05;
+      }
+      return 0; // 善良さ1000未満では出現しない
+    }
+  },
 ];
 
 // ===============================
@@ -615,7 +759,8 @@ export const negativeCards: Card[] = [
     id: 'old_age',
     name: '老衰',
     type: CardType.NEGATIVE,
-    description: 'ゲームオーバー（年老いて死亡）',
+    description: 'ゲームオーバー',
+    iconSource: '/card-images/old_age.png',
     effect: {
       type: EffectType.GAME_OVER,
       gameOverReason: GameOverReason.OLD_AGE,
@@ -640,6 +785,7 @@ export const negativeCards: Card[] = [
     name: '軽犯罪',
     type: CardType.NEGATIVE,
     description: '善良さ-15',
+    iconSource: '/card-images/minor_crime.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -666,7 +812,8 @@ export const negativeCards: Card[] = [
     id: 'traffic_violation',
     name: '交通違反',
     type: CardType.NEGATIVE,
-    description: '資産-80万円（罰金）',
+    description: '資産-80万円',
+    iconSource: '/card-images/traffic_violation.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -692,7 +839,8 @@ export const negativeCards: Card[] = [
     id: 'aging',
     name: '加齢',
     type: CardType.NEGATIVE,
-    description: '年齢+3歳（疲労による老化）',
+    description: '年齢+3歳',
+    iconSource: '/card-images/aging.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -718,7 +866,8 @@ export const negativeCards: Card[] = [
     id: 'pay_pension',
     name: '年金',
     type: CardType.NEGATIVE,
-    description: '年金を10万円払う',
+    description: '資産-10万円',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -743,7 +892,8 @@ export const negativeCards: Card[] = [
     id: 'wealth_halver',
     name: '大損失',
     type: CardType.NEGATIVE,
-    description: '資産が半分になる',
+    description: '資産×0.5倍',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -770,7 +920,8 @@ export const negativeCards: Card[] = [
     id: 'drug_addiction',
     name: '薬物中毒',
     type: CardType.NEGATIVE,
-    description: '薬中状態+1（毎ターン追加老化）、善良さ-20、資産-120万円',
+    description: '薬中+1、善良さ-20、資産-120万円',
+    iconSource: '/card-images/drug_addiction.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -799,7 +950,8 @@ export const negativeCards: Card[] = [
     id: 'property_tax',
     name: '固定資産税',
     type: CardType.NEGATIVE,
-    description: '資産の10%を税金として徴収（資産1000万円超でのみ出現）',
+    description: '資産×0.9倍（資産の10%税金）',
+    iconSource: '/card-images/property_tax.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -830,7 +982,8 @@ export const negativeCards: Card[] = [
     id: 'resident_tax',
     name: '住民税',
     type: CardType.NEGATIVE,
-    description: '資産-10万円（住民税）',
+    description: '資産-10万円',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -856,7 +1009,8 @@ export const negativeCards: Card[] = [
     id: 'arrest',
     name: '逮捕',
     type: CardType.NEGATIVE,
-    description: '善良さのマイナスの値の20%の年数服役、善良さ0に回復、費用-200万円',
+    description: '善良さ0に回復、服役年数分年齢+、資産-200万円',
+    iconSource: '/card-images/arrest.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -892,7 +1046,8 @@ export const negativeCards: Card[] = [
     id: 'stock_decline',
     name: '株価下落',
     type: CardType.NEGATIVE,
-    description: '複利状態×0.05倍の資産を失う（複利状態がなければ資産-20万円）',
+    description: '複利レベル×5%の資産減少',
+    iconSource: '/card-images/stock_decline.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -919,7 +1074,8 @@ export const negativeCards: Card[] = [
     id: 'market_crash',
     name: '暴落',
     type: CardType.NEGATIVE,
-    description: '複利状態×0.1倍の資産を失う（複利状態がなければ資産-50万円）',
+    description: '複利レベル×10%の資産減少',
+    iconSource: '/card-images/market_crash.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -954,7 +1110,8 @@ export const negativeCards: Card[] = [
     id: 'economic_crisis',
     name: '経済危機',
     type: CardType.NEGATIVE,
-    description: '複利状態×0.2倍の資産を失う（複利状態がなければ資産-100万円）',
+    description: '複利レベル×20%の資産減少',
+    iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -982,7 +1139,8 @@ export const negativeCards: Card[] = [
     id: 'asset_seizure',
     name: '差し押さえ',
     type: CardType.NEGATIVE,
-    description: '不労所得を全て失う（資産マイナス時のみ出現）',
+    description: '不労所得0に',
+    iconSource: '/card-images/asset_seizure.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
@@ -1016,7 +1174,8 @@ export const negativeCards: Card[] = [
     id: 'death_penalty',
     name: '死刑',
     type: CardType.NEGATIVE,
-    description: '即ゲームオーバー（善良さ-3000以下で出現、実行時善良さ-3000以下で執行）',
+    description: 'ゲームオーバー（善良さ-3000以下で執行）',
+    iconSource: '/card-images/death_penalty.png',
     effect: {
       type: EffectType.GAME_OVER,
       gameOverReason: GameOverReason.DEATH_PENALTY,

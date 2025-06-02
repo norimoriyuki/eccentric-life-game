@@ -147,6 +147,7 @@ export interface Card {
   name: string; // カード名
   type: CardType; // ポジティブ・ネガティブ
   description: string; // カードの説明
+  iconSource: string; // カードアイコンの画像パス
   effect: CardEffect; // カードの効果
   baseAppearanceRate: number; // 基本出現確率（0-1）
   appearanceCondition?: AppearanceCondition; // 出現条件

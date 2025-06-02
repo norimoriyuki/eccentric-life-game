@@ -52,7 +52,6 @@ export const StatusDisplay: React.FC<StatusDisplayProps> = ({ gameState }) => (
       !['wealth', 'goodness', 'ability', 'age'].includes(key) && typeof value === 'number' && value > 0
     ).length > 0 && (
       <div className="mb-3">
-        <div className="text-xs text-gray-400 mb-1">状態効果</div>
         <div className="flex flex-wrap gap-1">
           {Object.entries(gameState.status)
             .filter(([key, value]) => 
@@ -69,11 +68,5 @@ export const StatusDisplay: React.FC<StatusDisplayProps> = ({ gameState }) => (
         </div>
       </div>
     )}
-    
-    <div className="text-center text-gray-300">
-      <span className="bg-gray-800 px-2 py-1 rounded border border-gray-600 text-xs">
-        ターン: {gameState.turn} | 生存中...
-      </span>
-    </div>
   </div>
 ); 

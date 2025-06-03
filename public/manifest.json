@@ -1,7 +1,7 @@
 {
   "name": "エキセントリック人生ゲーム",
-  "short_name": "人生ゲーム",
-  "description": "エキセントリック人生ゲーム - 資産、信用、能力、年齢を管理して生き抜け！",
+  "short_name": "エキ人",
+  "description": "エキセントリック人生ゲーム - 死ぬまでに稼げるだけ稼げ！",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#111827",

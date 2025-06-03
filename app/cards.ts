@@ -1553,7 +1553,7 @@ export const negativeCards: Card[] = [
     baseAppearanceRate: 0.8,
     probabilityCalculator: (status) => {
       // 能力100以下で出現
-      if (status.ability <= 100) {
+      if (status.ability <= 100 && status.wealth >= 200) {
         // 能力が低いほど出現率UP、資産が多いほど出現率UP
         const abilityMultiplier = status.ability <= 50 ? 2.0 : status.ability <= 75 ? 1.5 : 1.0;
         const wealthMultiplier = status.wealth >= 1000 ? 1.5 : status.wealth >= 500 ? 1.2 : 0.8;
@@ -1578,7 +1578,7 @@ export const negativeCards: Card[] = [
         
         return {
           newStatus,
-          description: '冤罪により善良さ-100、弁護士費用等で資産-500万円'
+          description: '冤罪により善良さ-100、資産-500万円'
         };
       }
     },

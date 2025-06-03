@@ -12,6 +12,7 @@ interface GameOverScreenProps {
 export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onResetGame }) => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [playerName, setPlayerName] = useState(gameState.playerName);
 
   const deathReasonMap: Record<string, string> = {
     [GameOverReason.OLD_AGE]: '老衰で朽ち果てた',
@@ -29,7 +30,7 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRes
     setIsRegistering(true);
     try {
       await saveScore({
-        playerName: gameState.playerName,
+        playerName: playerName.trim() || gameState.playerName,
         wealth: Math.floor(gameState.status.wealth),
         age: gameState.status.age,
         goodness: gameState.status.goodness,
@@ -72,17 +73,35 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRes
 
             <div className="space-y-3">
               {!registrationComplete && (
-                <button
-                  onClick={handleRegisterScore}
-                  disabled={isRegistering}
-                  className={`w-full font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl ${
-                    isRegistering
-                      ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white'
-                  }`}
-                >
-                  {isRegistering ? '🔄 登録中...' : '🏆 スコアを登録'}
-                </button>
+                <>
+                  <div className="bg-gray-800 border border-gray-600 p-4 rounded-lg">
+                    <label htmlFor="score-player-name" className="block text-sm font-medium text-gray-300 mb-2">
+                      🏷️ スコア登録名
+                    </label>
+                    <input
+                      id="score-player-name"
+                      type="text"
+                      value={playerName}
+                      onChange={(e) => setPlayerName(e.target.value)}
+                      className="w-full p-3 bg-gray-700 border border-gray-500 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-white text-center"
+                      placeholder="スコア登録名を入力"
+                      maxLength={20}
+                      disabled={isRegistering}
+                    />
+                  </div>
+                  
+                  <button
+                    onClick={handleRegisterScore}
+                    disabled={isRegistering || !playerName.trim()}
+                    className={`w-full font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl ${
+                      isRegistering || !playerName.trim()
+                        ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white'
+                    }`}
+                  >
+                    {isRegistering ? '🔄 登録中...' : '🏆 スコアを登録'}
+                  </button>
+                </>
               )}
               
               {registrationComplete && (

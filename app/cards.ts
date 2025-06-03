@@ -131,27 +131,27 @@ export const positiveCards: Card[] = [
     id: 'business',
     name: '新規事業',
     type: CardType.POSITIVE,
-    description: '資産×1.4倍',
+    description: '不労所得+（能力/50）',
     iconSource: '/dummy.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
-        const oldWealth = newStatus.wealth;
-        newStatus.wealth *= 1.4;
+        const passiveIncomeIncrease = Math.floor(status.ability / 50);
+        newStatus.passiveIncome = (newStatus.passiveIncome || 0) + passiveIncomeIncrease;
         
         return {
           newStatus,
-          description: `事業成功！資産が${Math.floor(oldWealth)}万円から${Math.floor(newStatus.wealth)}万円に増加`
+          description: `新規事業で不労所得+${passiveIncomeIncrease}（能力${status.ability}/50）`
         };
       }
     },
     baseAppearanceRate: 0.3,
     probabilityCalculator: (status) => {
       // 能力が高く、ある程度の資産があると出現率UP
-      if (status.ability >= 80 && status.wealth >= 200) return 1.2;
-      if (status.ability >= 60 && status.wealth >= 100) return 0.8;
-      return 0.4;
+      if (status.ability >= 200 && status.wealth >= 200) return 2.0;
+      if (status.ability >= 100 && status.wealth >= 100) return 1.0;
+      return 0;
     }
   },
 
@@ -656,9 +656,8 @@ export const positiveCards: Card[] = [
       // 善良さ200以上かつ複利3以上の場合のみ出現
       if (status.goodness >= 200 && (status.compound || 0) >= 3) {
         // 善良さと複利レベルが高いほど出現率UP
-        const goodnessMultiplier = status.goodness >= 300 ? 1.5 : 1.0;
-        const compoundMultiplier = (status.compound || 0) >= 5 ? 1.3 : 1.0;
-        return goodnessMultiplier * compoundMultiplier;
+        const goodnessMultiplier = status.goodness >= 300 ? 2.0 : 1.0;
+        return goodnessMultiplier;
       }
       return 0; // 条件を満たさない場合は出現しない
     }
@@ -686,11 +685,10 @@ export const positiveCards: Card[] = [
     baseAppearanceRate: 0.05,
     probabilityCalculator: (status) => {
       // 善良さ1000以上のときのみ出現
-      if (status.goodness >= 1000) {
-        // 善良さが高いほど出現率UP
-        if (status.goodness >= 2000) return 1;
-        if (status.goodness >= 1500) return 0.5;
-        return 0.1;
+      if (status.goodness >= 1000 && status.ability >= 200) {
+        if (status.goodness >= 2000) return 3.0;
+        if (status.goodness >= 1500) return 2.0;
+        return 1.0;
       }
       return 0; // 善良さ1000未満では出現しない
     }
@@ -757,7 +755,7 @@ export const positiveCards: Card[] = [
     id: 'great_invention',
     name: '大発明',
     type: CardType.POSITIVE,
-    description: '善良さ+200、不労所得+10、資産+10000万円',
+    description: '善良さ+200、不労所得+10、資産+1億円',
     iconSource: '/card-images/human_modification.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
@@ -778,9 +776,9 @@ export const positiveCards: Card[] = [
       // 能力250以上でのみ出現
       if (status.ability >= 250) {
         // 能力が高いほど出現率UP
-        if (status.ability >= 350) return 1.0;
-        if (status.ability >= 300) return 0.7;
-        return 0.3;
+        if (status.ability >= 350) return 3.0;
+        if (status.ability >= 300) return 2.0;
+        return 1.0;
       }
       return 0; // 能力250未満では出現しない
     }
@@ -874,9 +872,8 @@ export const positiveCards: Card[] = [
       // 資産10000万円以上で出現
       if (status.wealth >= 10000) {
         // 資産が多いほど出現率UP、善良さが高いほど出現率UP
-        const wealthMultiplier = status.wealth >= 50000 ? 1.0 : status.wealth >= 20000 ? 0.8 : 0.5;
-        const goodnessMultiplier = status.goodness >= 500 ? 1.5 : status.goodness >= 200 ? 1.2 : 1.0;
-        return wealthMultiplier * goodnessMultiplier;
+        const wealthMultiplier = status.wealth >= 50000 ? 3.0 : status.wealth >= 20000 ? 2.0 : 1.0;
+        return wealthMultiplier;
       }
       return 0; // 資産10000万円未満では出現しない
     }
@@ -906,9 +903,8 @@ export const positiveCards: Card[] = [
       // 資産10000万円以上で出現
       if (status.wealth >= 10000) {
         // 資産が多いほど出現率UP、善良さが低いほど出現率UP
-        const wealthMultiplier = status.wealth >= 50000 ? 1.2 : status.wealth >= 20000 ? 1.0 : 0.7;
-        const goodnessMultiplier = status.goodness <= 100 ? 1.5 : status.goodness <= 300 ? 1.2 : 1.0;
-        return wealthMultiplier * goodnessMultiplier;
+        const wealthMultiplier = status.wealth >= 50000 ? 2.5 : status.wealth >= 20000 ? 2.0 : 1.0;
+        return wealthMultiplier;
       }
       return 0; // 資産10000万円未満では出現しない
     }

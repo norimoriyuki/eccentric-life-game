@@ -116,65 +116,61 @@ export const ScoreboardScreen: React.FC<ScoreboardScreenProps> = ({ onBackToHome
                   return (
                     <div
                       key={score.id || index}
-                      className={`p-3 rounded-lg border border-gray-600 ${getRankColor(rank)} transition-all hover:scale-[1.02]`}
+                      className={`p-4 rounded-lg border border-gray-600 ${getRankColor(rank)} transition-all hover:scale-[1.02]`}
                     >
-                      <div className="flex items-center justify-between">
-                        {/* ランクと名前 */}
-                        <div className="flex items-center space-x-3 flex-1 min-w-0">
-                          <div className="text-lg font-bold min-w-[60px]">
+                      {/* 上段: ランクと名前 */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="text-xl font-bold min-w-[70px]">
                             {getRankIcon(rank)}
                           </div>
-                          <div className="font-bold text-white truncate">
+                          <div className="text-lg font-bold text-white">
                             {score.playerName}
                           </div>
                         </div>
-
-                        {/* ステータス */}
-                        <div className="flex items-center space-x-4 text-sm">
-                          {/* 資産 */}
-                          <div className="text-center min-w-[80px]">
-                            <div className={`font-bold ${score.wealth >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                              {formatWealth(score.wealth)}
-                            </div>
-                            <div className="text-xs text-gray-400">資産</div>
+                        
+                        {/* 登録日時（右上） */}
+                        <div className="text-right">
+                          <div className="text-gray-300 text-xs">
+                            {formatDate(score.timestamp)}
                           </div>
+                          <div className="text-xs text-gray-400">登録日</div>
+                        </div>
+                      </div>
 
-                          {/* 年齢 */}
-                          <div className="text-center min-w-[50px]">
-                            <div className="text-orange-400 font-bold">{score.age}歳</div>
-                            <div className="text-xs text-gray-400">年齢</div>
-                          </div>
+                      {/* 中段: 資産（メイン表示） */}
+                      <div className="text-center mb-3">
+                        <div className={`text-3xl font-bold ${score.wealth >= 0 ? 'text-green-400' : 'text-red-400'} drop-shadow-lg`}>
+                          {formatWealth(score.wealth)}
+                        </div>
+                        <div className="text-sm text-gray-300 font-medium">総資産</div>
+                      </div>
 
-                          {/* 善良さ */}
-                          <div className="text-center min-w-[50px]">
-                            <div className={`font-bold ${score.goodness >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
-                              {score.goodness}
-                            </div>
-                            <div className="text-xs text-gray-400">善良</div>
-                          </div>
+                      {/* 下段: サブステータス */}
+                      <div className="flex justify-center space-x-8 text-sm">
+                        {/* 年齢 */}
+                        <div className="text-center">
+                          <div className="text-orange-400 font-bold text-lg">{score.age}歳</div>
+                          <div className="text-xs text-gray-400">年齢</div>
+                        </div>
 
-                          {/* 登録日 */}
-                          <div className="text-center min-w-[60px]">
-                            <div className="text-gray-300 text-xs">
-                              {formatDate(score.timestamp)}
-                            </div>
-                            <div className="text-xs text-gray-400">登録日</div>
+                        {/* 善良さ */}
+                        <div className="text-center">
+                          <div className={`font-bold text-lg ${score.goodness >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
+                            {score.goodness}
                           </div>
+                          <div className="text-xs text-gray-400">善良さ</div>
+                        </div>
+
+                        {/* 能力 */}
+                        <div className="text-center">
+                          <div className="text-purple-400 font-bold text-lg">{score.ability}</div>
+                          <div className="text-xs text-gray-400">能力</div>
                         </div>
                       </div>
                     </div>
                   );
                 })
-              )}
-            </div>
-          )}
-
-          {/* 統計情報 */}
-          {!isLoading && !error && scores.length > 0 && (
-            <div className="mt-6 text-center text-sm text-gray-400">
-              <p>総登録者数: {scores.length}名</p>
-              {scores.length > 0 && (
-                <p>最高資産: {formatWealth(scores[0].wealth)} (by {scores[0].playerName})</p>
               )}
             </div>
           )}

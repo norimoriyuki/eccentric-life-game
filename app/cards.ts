@@ -881,33 +881,6 @@ export const negativeCards: Card[] = [
     }
   },
 
-  {
-    id: 'minor_crime',
-    name: '軽犯罪',
-    type: CardType.NEGATIVE,
-    description: '善良さ-15',
-    iconSource: '/card-images/minor_crime.png',
-    effect: {
-      type: EffectType.STATUS_CHANGE,
-      execute: (status: GameStatus): CardEffectResult => {
-        const newStatus = { ...status };
-        newStatus.goodness -= 15;
-        
-        return {
-          newStatus,
-          description: '善良さ-15'
-        };
-      }
-    },
-    baseAppearanceRate: 0.8,
-    probabilityCalculator: (status) => {
-      // 善良さが低いほど出現率UP
-      if (status.goodness <= 20) return 2.5;
-      if (status.goodness <= 40) return 1.5;
-      if (status.goodness >= 80) return 0.3;
-      return 1.0;
-    }
-  },
 
   {
     id: 'aging',
@@ -941,7 +914,7 @@ export const negativeCards: Card[] = [
     name: '年金',
     type: CardType.NEGATIVE,
     description: '資産-10万円',
-    iconSource: '/dummy.png',
+    iconSource: '/card-images/pension.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {

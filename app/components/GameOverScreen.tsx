@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GameState, GameOverReason } from '../types';
 import { UpdateNotification } from './UpdateNotification';
 import { StatusDisplay } from './StatusDisplay';
+import { saveScore } from '../../lib/scoreboard';
 
 interface GameOverScreenProps {
   gameState: GameState;
@@ -9,6 +10,9 @@ interface GameOverScreenProps {
 }
 
 export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onResetGame }) => {
+  const [isSavingScore, setIsSavingScore] = useState(false);
+  const [scoreSaved, setScoreSaved] = useState(false);
+
   const deathReasonMap: Record<string, string> = {
     [GameOverReason.OLD_AGE]: '老衰で朽ち果てた',
     [GameOverReason.ASSASSINATION]: '暗殺された',
@@ -16,6 +20,38 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRes
     [GameOverReason.DIMENSION_SUCKED]: '異次元に吸い込まれた',
     [GameOverReason.BLACKHOLE]: 'ブラックホールに呑まれた',
     [GameOverReason.SUICIDE]: '自ら命を絶った'
+  };
+
+  const handleSaveScore = async () => {
+    if (isSavingScore || scoreSaved) return;
+    
+    setIsSavingScore(true);
+    
+    try {
+      const scoreData = {
+        playerName: gameState.playerName,
+        wealth: Math.floor(gameState.status.wealth),
+        goodness: gameState.status.goodness,
+        ability: gameState.status.ability,
+        age: gameState.status.age,
+        turns: gameState.turn - 1,
+        gameOverReason: gameState.gameOverReason ? deathReasonMap[gameState.gameOverReason] || gameState.gameOverReason : '原因不明',
+        timestamp: Date.now(),
+      };
+
+      const result = await saveScore(scoreData);
+      
+      if (result) {
+        setScoreSaved(true);
+        console.log('スコアが正常に保存されました');
+      } else {
+        console.error('スコア保存に失敗しました');
+      }
+    } catch (error) {
+      console.error('スコア保存エラー:', error);
+    } finally {
+      setIsSavingScore(false);
+    }
   };
 
   return (
@@ -42,12 +78,30 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRes
               </div>
             </div>
 
-            <button
-              onClick={onResetGame}
-              className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl"
-            >
-              🔄 再人生ガチャ
-            </button>
+            <div className="space-y-3">
+              {/* スコア登録ボタン */}
+              <button
+                onClick={handleSaveScore}
+                disabled={isSavingScore || scoreSaved}
+                className={`w-full font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl ${
+                  scoreSaved 
+                    ? 'bg-green-600 text-white cursor-not-allowed' 
+                    : isSavingScore
+                    ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white'
+                }`}
+              >
+                {scoreSaved ? '✅ スコア登録完了' : isSavingScore ? '⏳ 登録中...' : '🏆 スコアを登録'}
+              </button>
+
+              {/* 再プレイボタン */}
+              <button
+                onClick={onResetGame}
+                className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl"
+              >
+                🔄 再人生ガチャ
+              </button>
+            </div>
             
           </div>
         </div>

@@ -7,13 +7,17 @@ import { CardExecutionOverlay } from './components/CardExecutionOverlay';
 import { HomeScreen } from './components/HomeScreen';
 import { MainGameScreen } from './components/MainGameScreen';
 import { GameOverScreen } from './components/GameOverScreen';
+import { ScoreboardScreen } from './components/ScoreboardScreen';
+import { SuicideConfirmationOverlay } from './components/SuicideConfirmationOverlay';
+import { StatusExplanationOverlay } from './components/StatusExplanationOverlay';
 
 // ゲーム画面の種類
 enum GameScreen {
   HOME = 'home',
   MAIN = 'main',
   CARD_EFFECT = 'card_effect',
-  GAME_OVER = 'game_over'
+  GAME_OVER = 'game_over',
+  SCOREBOARD = 'scoreboard'
 }
 
 // 実行フェーズの種類
@@ -37,7 +41,7 @@ const EccentricLifeGame: React.FC = () => {
   const [gameEngine] = useState(new GameEngine());
   const [currentScreen, setCurrentScreen] = useState<GameScreen>(GameScreen.HOME);
   const [gameState, setGameState] = useState<GameState>(gameEngine.getState());
-  const [_playerName, setPlayerName] = useState('');
+  const [playerName, setPlayerName] = useState('');
   const [drawnCards, setDrawnCards] = useState<CardDrawResult | null>(null);
   const [selectedPositiveCards, setSelectedPositiveCards] = useState<Card[]>([]);
 
@@ -51,6 +55,10 @@ const EccentricLifeGame: React.FC = () => {
   
   // 重複実行防止用のフラグ
   const isExecutingRef = useRef(false);
+
+  // オーバーレイ状態の管理
+  const [showSuicideConfirmation, setShowSuicideConfirmation] = useState(false);
+  const [selectedStatusType, setSelectedStatusType] = useState<string | null>(null);
 
   // ゲーム初期化
   const initializeGame = (playerName: string) => {
@@ -308,12 +316,15 @@ const EccentricLifeGame: React.FC = () => {
 
   // ゲームリセット
   const resetGame = () => {
+    // 現在の名前を保持（GameEngineがリセット前に名前を保持する）
+    const currentPlayerName = gameEngine.getState().playerName;
     gameEngine.resetGame();
     setGameState(gameEngine.getState());
-    setPlayerName('');
+    // 名前を保持してタイトル画面に戻る
+    setPlayerName(currentPlayerName);
     setDrawnCards(null);
     setSelectedPositiveCards([]);
-    setCurrentScreen(GameScreen.HOME);
+    setCurrentScreen(GameScreen.HOME); // タイトル画面に戻る
   };
 
   // 自殺（即ゲームオーバー）
@@ -325,9 +336,45 @@ const EccentricLifeGame: React.FC = () => {
     setCurrentScreen(GameScreen.GAME_OVER);
   };
 
+  // 自殺確認表示
+  const handleShowSuicideConfirmation = () => {
+    setShowSuicideConfirmation(true);
+  };
+
+  // 自殺キャンセル
+  const handleCancelSuicide = () => {
+    setShowSuicideConfirmation(false);
+  };
+
+  // 自殺実行（確認後）
+  const handleConfirmSuicide = () => {
+    setShowSuicideConfirmation(false);
+    commitSuicide();
+  };
+
+  // ステータス説明表示
+  const handleStatusClick = (statusType: string) => {
+    setSelectedStatusType(statusType);
+  };
+
+  // ステータス説明閉じる
+  const handleCloseStatusExplanation = () => {
+    setSelectedStatusType(null);
+  };
+
+  // スコアボード画面への遷移
+  const handleShowScoreboard = () => {
+    setCurrentScreen(GameScreen.SCOREBOARD);
+  };
+
+  // スコアボードからホームに戻る
+  const handleBackToHome = () => {
+    setCurrentScreen(GameScreen.HOME);
+  };
+
   // 画面レンダリング
   if (currentScreen === GameScreen.HOME) {
-    return <HomeScreen onInitializeGame={initializeGame} />;
+    return <HomeScreen onInitializeGame={initializeGame} defaultName={playerName} onShowScoreboard={handleShowScoreboard} />;
   }
 
   if (currentScreen === GameScreen.MAIN) {
@@ -340,9 +387,15 @@ const EccentricLifeGame: React.FC = () => {
           onTogglePositiveCard={togglePositiveCard}
           onExecuteCards={executeCards}
           onCommitSuicide={commitSuicide}
-                    />
+          showSuicideConfirmation={showSuicideConfirmation}
+          onShowSuicideConfirmation={handleShowSuicideConfirmation}
+          onCancelSuicide={handleCancelSuicide}
+          selectedStatusType={selectedStatusType}
+          onStatusClick={handleStatusClick}
+          onCloseStatusExplanation={handleCloseStatusExplanation}
+        />
 
-        {/* オーバーレイ表示 */}
+        {/* カード実行オーバーレイ */}
         {isShowingCardExecution && phaseExecutionDetails.length > 0 && (
           <CardExecutionOverlay
             detail={phaseExecutionDetails[0]}
@@ -351,13 +404,33 @@ const EccentricLifeGame: React.FC = () => {
             currentIndex={currentExecutionPhase === ExecutionPhase.POSITIVE ? 0 : currentExecutionPhase === ExecutionPhase.NEGATIVE ? 1 : 2}
             totalCards={3}
           />
-              )}
-            </>
+        )}
+
+        {/* 自殺確認オーバーレイ */}
+        {showSuicideConfirmation && (
+          <SuicideConfirmationOverlay
+            onConfirm={handleConfirmSuicide}
+            onCancel={handleCancelSuicide}
+          />
+        )}
+
+        {/* ステータス説明オーバーレイ */}
+        {selectedStatusType && (
+          <StatusExplanationOverlay
+            statusType={selectedStatusType}
+            onClose={handleCloseStatusExplanation}
+          />
+        )}
+      </>
     );
   }
 
   if (currentScreen === GameScreen.GAME_OVER) {
     return <GameOverScreen gameState={gameState} onResetGame={resetGame} />;
+  }
+
+  if (currentScreen === GameScreen.SCOREBOARD) {
+    return <ScoreboardScreen onBackToHome={handleBackToHome} />;
   }
 
   return null;

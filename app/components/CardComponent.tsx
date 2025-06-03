@@ -19,7 +19,7 @@ export const CardComponent: React.FC<CardComponentProps> = ({
 }) => (
   <div 
     className={`
-      border rounded-lg p-2 cursor-pointer transition-all transform hover:scale-105
+      border rounded-lg p-2 cursor-pointer transition-all transform hover:scale-105 relative
       ${isPositive 
         ? 'border-green-500 bg-gradient-to-br from-green-900 to-green-800' 
         : 'border-red-500 bg-gradient-to-br from-red-900 to-red-800'
@@ -30,6 +30,24 @@ export const CardComponent: React.FC<CardComponentProps> = ({
     `}
     onClick={disabled ? undefined : onClick}
   >
+    {/* チェックボックス（ポジティブカードのみ） */}
+    {isPositive && (
+      <div className="absolute top-2 right-2 w-6 h-6 border-2 border-white rounded bg-white/20 flex items-center justify-center transition-all">
+        {isSelected && (
+          <div className="text-white font-black text-xl">
+            ✓
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* ランダムリスクラベル（ネガティブカードのみ） */}
+    {!isPositive && (
+      <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded font-bold">
+        ランダム
+      </div>
+    )}
+
     {/* カード名 */}
     <h2 className="font-bold text-sm mb-2 text-white">{card.name}</h2>
 
@@ -49,7 +67,7 @@ export const CardComponent: React.FC<CardComponentProps> = ({
           target.nextElementSibling!.textContent = '🎴';
         }}
       />
-      <span className="text-3xl hidden">��</span>
+      <span className="text-3xl hidden">🎴</span>
     </div>
     
     {/* カード説明 */}

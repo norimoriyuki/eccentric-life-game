@@ -106,21 +106,22 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
           
           {/* カード一覧（ポジティブ・ネガティブフェーズのみ） */}
           {cards && cards.length > 0 && (
-            <div className="mb-3">
-              <div className="text-sm text-gray-200 mb-2">実行カード:</div>
-              <div className="space-y-1">
-                {cards.map((card, index) => (
-                  <div key={index} className="text-xs bg-black/40 p-2 rounded text-gray-100">
-                    <span className="font-semibold">{card.name}</span>
+            <div className="space-y-2">
+              {cards.map((card, index) => (
+                <div key={index} className="bg-black/40 p-3 rounded border border-gray-600">
+                  <div className="text-sm font-semibold text-white mb-1">
+                    {card.name}
                   </div>
-                ))}
-              </div>
+                  <div className="text-xs text-gray-200">
+                    {descriptions[index] ? descriptions[index].replace(`${card.name}: `, '') : card.description}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
           
-          {/* 効果説明 */}
-          <div>
-            <div className="text-sm text-gray-200 mb-2">効果:</div>
+          {/* 状態効果のみの場合（カードがない場合） */}
+          {!cards && descriptions.length > 0 && (
             <div className="space-y-1">
               {descriptions.map((desc, index) => (
                 <div key={index} className="text-xs bg-black/40 p-2 rounded text-gray-100">
@@ -128,7 +129,7 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
                 </div>
               ))}
             </div>
-          </div>
+          )}
         </div>
 
         {/* ステータス変化 */}

@@ -11,6 +11,12 @@ interface MainGameScreenProps {
   onTogglePositiveCard: (card: Card) => void;
   onExecuteCards: () => void;
   onCommitSuicide: () => void;
+  showSuicideConfirmation: boolean;
+  onShowSuicideConfirmation: () => void;
+  onCancelSuicide: () => void;
+  selectedStatusType: string | null;
+  onStatusClick: (statusType: string) => void;
+  onCloseStatusExplanation: () => void;
 }
 
 export const MainGameScreen: React.FC<MainGameScreenProps> = ({
@@ -19,14 +25,20 @@ export const MainGameScreen: React.FC<MainGameScreenProps> = ({
   selectedPositiveCards,
   onTogglePositiveCard,
   onExecuteCards,
-  onCommitSuicide
+  onCommitSuicide: _onCommitSuicide,
+  showSuicideConfirmation: _showSuicideConfirmation,
+  onShowSuicideConfirmation,
+  onCancelSuicide: _onCancelSuicide,
+  selectedStatusType: _selectedStatusType,
+  onStatusClick,
+  onCloseStatusExplanation: _onCloseStatusExplanation
 }) => {
   return (
     <>
       <UpdateNotification />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         <div className="max-w-md mx-auto px-3 py-3">
-          <StatusDisplay gameState={gameState} />
+          <StatusDisplay gameState={gameState} onStatusClick={onStatusClick} />
 
           {drawnCards && (
             <>
@@ -80,7 +92,7 @@ export const MainGameScreen: React.FC<MainGameScreenProps> = ({
                 </button>
                 
                 <button
-                  onClick={onCommitSuicide}
+                  onClick={onShowSuicideConfirmation}
                   className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-2 px-6 rounded-lg text-sm transform hover:scale-105 transition-all shadow-xl"
                 >
                   💀 自殺

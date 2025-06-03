@@ -205,4 +205,18 @@ export interface DebugProbabilityInfo {
   baseRate: number;
   calculatedRate: number;
   conditions: string[];
+}
+
+// スコアボード用の型定義
+export interface Score {
+  id?: string;
+  playerName: string;
+  wealth: number;
+  goodness: number;
+  ability: number;
+  age: number;
+  turns: number;
+  gameOverReason: string;
+  timestamp: number; // Unix timestamp
+  createdAt: Date;
 } 

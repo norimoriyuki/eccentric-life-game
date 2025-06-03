@@ -3,9 +3,11 @@ import { UpdateNotification } from './UpdateNotification';
 
 interface HomeScreenProps {
   onInitializeGame: (playerName: string) => void;
+  defaultName?: string; // デフォルト名前を受け取る
+  onShowScoreboard: () => void; // スコアボード画面への遷移
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onInitializeGame }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onInitializeGame, defaultName, onShowScoreboard }) => {
   const getRandomName = () => {
     const names = [
       '太郎', '花子', '健太', '美咲', '翔', '麻衣', '大輔', '彩', '慶太', '由美',
@@ -19,10 +21,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onInitializeGame }) => {
 
   const [playerName, setPlayerName] = useState('');
 
-  // コンポーネントマウント時にランダム名前を設定
+  // コンポーネントマウント時にデフォルト名前またはランダム名前を設定
   useEffect(() => {
-    setPlayerName(getRandomName());
-  }, []);
+    setPlayerName(defaultName || getRandomName());
+  }, [defaultName]);
 
   const handleStartGame = () => {
     const name = playerName.trim() || getRandomName();
@@ -67,6 +69,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onInitializeGame }) => {
               >
                 🎲 人生ガチャ開始
               </button>
+              
+              <button
+                onClick={onShowScoreboard}
+                className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white font-bold py-2 px-6 rounded-lg text-base shadow-xl transform hover:scale-105 transition-all border border-yellow-500"
+              >
+                🏆 スコアボードを見る
+              </button>
+              
               <div className="space-y-2 text-sm text-gray-400 bg-black/30 p-3 rounded-lg border border-gray-700">
                 <p className="text-red-400 font-semibold">⚠️ エキセントリックで不謹慎な内容が含まれています</p>
                 <p className="text-yellow-400">💡 行動の数だけランダムな災厄が降りかかる</p>

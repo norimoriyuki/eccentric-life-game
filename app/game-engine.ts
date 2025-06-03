@@ -375,7 +375,7 @@ export class GameEngine {
    * 年齢による自動ゲームオーバー判定
    */
   checkAgeGameOver(): boolean {
-    if (this.state.status.age >= 120) {
+    if (this.state.status.age >= 160) {
       this.state.isGameOver = true;
       this.state.gameOverReason = GameOverReason.OLD_AGE;
       return true;
@@ -387,7 +387,14 @@ export class GameEngine {
    * ゲームをリセット
    */
   resetGame(): void {
+    // 現在の名前を保持
+    const currentPlayerName = this.state.playerName;
+    
+    // ステートをリセット
     this.state = this.createEmptyState();
+    
+    // 名前を復元
+    this.state.playerName = currentPlayerName;
   }
 
   /**

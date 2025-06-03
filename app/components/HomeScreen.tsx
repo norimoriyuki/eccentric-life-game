@@ -4,7 +4,7 @@ import { UpdateNotification } from './UpdateNotification';
 interface HomeScreenProps {
   onInitializeGame: (playerName: string) => void;
   defaultName?: string; // デフォルト名前を受け取る
-  onShowScoreboard: () => void; // スコアボード画面への遷移
+  onShowScoreboard: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onInitializeGame, defaultName, onShowScoreboard }) => {
@@ -69,14 +69,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onInitializeGame, defaul
               >
                 🎲 人生ガチャ開始
               </button>
-              
               <button
                 onClick={onShowScoreboard}
-                className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white font-bold py-2 px-6 rounded-lg text-base shadow-xl transform hover:scale-105 transition-all border border-yellow-500"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-xl transform hover:scale-105 transition-all border border-blue-500"
               >
-                🏆 スコアボードを見る
+                🏆 スコアボード
               </button>
-              
               <div className="space-y-2 text-sm text-gray-400 bg-black/30 p-3 rounded-lg border border-gray-700">
                 <p className="text-red-400 font-semibold">⚠️ エキセントリックで不謹慎な内容が含まれています</p>
                 <p className="text-yellow-400">💡 行動の数だけランダムな災厄が降りかかる</p>

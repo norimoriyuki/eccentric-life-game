@@ -12,6 +12,9 @@ import {
 } from './types';
 import { positiveCards, negativeCards } from './cards';
 
+// ゲーム内の上限値定数
+const WEALTH_CAP = 1e15 - 1;        // 999,999,999,999,999万円（1京円-1万円）
+
 /**
  * シンプルな重み計算（weight-utils の代替）
  */
@@ -262,9 +265,9 @@ export class GameEngine {
       newStatus = this.applyStateEffects(newStatus);
     }
 
-    // 毎ターン年齢を+1する（ゲームオーバーでない場合のみ）
+    // 毎ターン年齢を+3する（ゲームオーバーでない場合のみ）
     if (!isGameOver) {
-      newStatus = { ...newStatus, age: newStatus.age + 1 };
+      newStatus = { ...newStatus, age: newStatus.age + 3 };
     }
 
     // ゲーム状態を更新
@@ -340,6 +343,11 @@ export class GameEngine {
       newStatus.ability -= newStatus.trauma * 5; // トラウマレベル×5の能力減少
     }
 
+    // 資産上限チェック
+    if (newStatus.wealth > WEALTH_CAP) {
+      newStatus.wealth = WEALTH_CAP;
+    }
+
     // 他の状態効果もここに追加可能
     // 例：「再生」状態なら能力回復など
 
@@ -355,7 +363,14 @@ export class GameEngine {
   ): CardEffectResult {
     // 新しい関数ベース効果が定義されている場合はそれを使用
     if (card.effect.execute) {
-      return card.effect.execute(currentStatus);
+      const result = card.effect.execute(currentStatus);
+      
+      // カード効果実行後に資産上限をチェック
+      if (result.newStatus && result.newStatus.wealth > WEALTH_CAP) {
+        result.newStatus.wealth = WEALTH_CAP;
+      }
+      
+      return result;
     }
 
     // フォールバック（基本的にはすべてのカードがexecuteを持つべき）

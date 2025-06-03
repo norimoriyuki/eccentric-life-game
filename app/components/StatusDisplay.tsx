@@ -6,6 +6,21 @@ interface StatusDisplayProps {
   onStatusClick?: (statusType: string) => void;
 }
 
+// 大きな数値を読みやすい形式にフォーマット
+const formatLargeNumber = (num: number): string => {
+  const absNum = Math.abs(num);
+  
+  if (absNum >= 1e12) {        // 1兆万円以上
+    return `${(num / 1e12).toFixed(1)}兆`;
+  } else if (absNum >= 1e8) {  // 1億万円以上
+    return `${(num / 1e8).toFixed(1)}億`;
+  } else if (absNum >= 1e4) {  // 1万万円以上
+    return `${(num / 1e4).toFixed(1)}万`;
+  } else {
+    return Math.floor(num).toString();
+  }
+};
+
 // 状態名を日本語に変換する関数
 const getStateDisplayName = (stateName: string): string => {
   const stateNameMap: Record<string, string> = {
@@ -29,7 +44,7 @@ export const StatusDisplay: React.FC<StatusDisplayProps> = ({ gameState, onStatu
       onClick={() => onStatusClick?.('wealth')}
     >
       <div className={`text-3xl font-bold ${gameState.status.wealth >= 0 ? 'text-green-400' : 'text-red-500'}`}>
-        {gameState.status.wealth >= 0 ? '¥' : '-¥'}{Math.abs(Math.floor(gameState.status.wealth))}万円
+        {gameState.status.wealth >= 0 ? '¥' : '-¥'}{formatLargeNumber(Math.abs(gameState.status.wealth))}万円
       </div>
       <div className="text-sm text-gray-300 mt-1">総資産</div>
     </div>

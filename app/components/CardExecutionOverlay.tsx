@@ -134,7 +134,6 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
 
         {/* ステータス変化 */}
         <div className="mb-6">
-          <h4 className="text-lg font-bold text-yellow-400 mb-4 text-center">📊 ステータス変化</h4>
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center bg-gray-800 p-3 rounded border border-gray-600">
               <div className="text-sm text-gray-300">資産</div>
@@ -210,18 +209,8 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
           </div>
         )}
 
-        {/* 進行情報 */}
-        <div className="text-center">
-          <div className="text-sm text-gray-400 mb-3">
-            フェーズ {currentIndex + 1} / 3
-          </div>
-          <div className="text-xs text-gray-500">
-            📱 画面をタップして次へ
-          </div>
-        </div>
       </div>
 
-      {/* スキップリンク */}
       {onSkip && currentIndex < 2 && (
         <div className="mt-4">
           <button
@@ -231,7 +220,7 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
             }}
             className="text-gray-400 hover:text-white text-sm underline transition-colors"
           >
-            残りフェーズをスキップ
+          スキップ
           </button>
         </div>
       )}

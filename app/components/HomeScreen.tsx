@@ -78,6 +78,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onInitializeGame, defaul
               <div className="space-y-2 text-sm text-gray-400 bg-black/30 p-3 rounded-lg border border-gray-700">
                 <p className="text-red-400 font-semibold">⚠️ エキセントリックで不謹慎な内容が含まれています</p>
                 <p className="text-yellow-400">💡 行動の数だけランダムな災厄が降りかかる</p>
+                <p className="text-green-400">🎯 いい人生を引くまでリセマラしよう！</p>
               </div>
             </div>
           </div>

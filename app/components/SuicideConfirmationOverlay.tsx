@@ -26,7 +26,7 @@ export const SuicideConfirmationOverlay: React.FC<SuicideConfirmationOverlayProp
             onClick={onCancel}
             className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-3 px-6 rounded-lg text-sm transform hover:scale-105 transition-all shadow-xl"
           >
-            💡 やっぱりやめる
+            💡 やっぱり続ける
           </button>
           
           <button

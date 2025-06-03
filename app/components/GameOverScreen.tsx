@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GameState, GameOverReason } from '../types';
 import { UpdateNotification } from './UpdateNotification';
 import { StatusDisplay } from './StatusDisplay';
+import { saveScore } from '../../lib/scoreboard';
 
 interface GameOverScreenProps {
   gameState: GameState;
@@ -9,13 +10,40 @@ interface GameOverScreenProps {
 }
 
 export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onResetGame }) => {
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
+
   const deathReasonMap: Record<string, string> = {
     [GameOverReason.OLD_AGE]: '老衰で朽ち果てた',
     [GameOverReason.ASSASSINATION]: '暗殺された',
     [GameOverReason.ALIEN_ABDUCTION]: 'エイリアンに解剖された',
     [GameOverReason.DIMENSION_SUCKED]: '異次元に吸い込まれた',
     [GameOverReason.BLACKHOLE]: 'ブラックホールに呑まれた',
-    [GameOverReason.SUICIDE]: '自ら命を絶った'
+    [GameOverReason.SUICIDE]: '自ら命を絶った',
+    [GameOverReason.DEATH_PENALTY]: '死刑執行された'
+  };
+
+  const handleRegisterScore = async () => {
+    if (isRegistering || registrationComplete) return;
+
+    setIsRegistering(true);
+    try {
+      await saveScore({
+        playerName: gameState.playerName,
+        wealth: Math.floor(gameState.status.wealth),
+        age: gameState.status.age,
+        goodness: gameState.status.goodness,
+        ability: gameState.status.ability,
+        gameOverReason: gameState.gameOverReason || GameOverReason.OLD_AGE,
+        turns: gameState.turn - 1,
+        timestamp: Date.now()
+      });
+      setRegistrationComplete(true);
+    } catch (error) {
+      console.error('スコア登録エラー:', error);
+    } finally {
+      setIsRegistering(false);
+    }
   };
 
   return (
@@ -42,12 +70,34 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRes
               </div>
             </div>
 
-            <button
-              onClick={onResetGame}
-              className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl"
-            >
-              🔄 再人生ガチャ
-            </button>
+            <div className="space-y-3">
+              {!registrationComplete && (
+                <button
+                  onClick={handleRegisterScore}
+                  disabled={isRegistering}
+                  className={`w-full font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl ${
+                    isRegistering
+                      ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white'
+                  }`}
+                >
+                  {isRegistering ? '🔄 登録中...' : '🏆 スコアを登録'}
+                </button>
+              )}
+              
+              {registrationComplete && (
+                <div className="bg-green-900 border border-green-600 p-3 rounded-lg">
+                  <p className="text-green-300 font-bold">✅ スコア登録完了！</p>
+                </div>
+              )}
+
+              <button
+                onClick={onResetGame}
+                className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl"
+              >
+                🔄 再人生ガチャ
+              </button>
+            </div>
             
           </div>
         </div>

@@ -913,6 +913,71 @@ export const positiveCards: Card[] = [
       return 0; // 資産10000万円未満では出現しない
     }
   },
+
+  {
+    id: 'ai_subscription',
+    name: 'AI課金',
+    type: CardType.POSITIVE,
+    description: '資産-1万円、能力×2倍',
+    iconSource: '/dummy.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const oldAbility = newStatus.ability;
+        newStatus.wealth -= 1;
+        newStatus.ability *= 2;
+        
+        return {
+          newStatus,
+          description: `AI課金で資産-1万円、能力が${oldAbility}から${newStatus.ability}に倍増`
+        };
+      }
+    },
+    baseAppearanceRate: 0.8,
+    probabilityCalculator: (status) => {
+      // 資産1万円以上で出現
+      if (status.wealth >= 1) {
+        // 能力が低いほど出現率UP、年齢が若いほど出現率UP
+        const abilityMultiplier = status.ability >= 100 ? 3.0 : status.ability >= 50 ? 2.0 : 1.0;
+        return abilityMultiplier;
+      }
+      return 0; // 資産1万円未満では出現しない
+    }
+  },
+
+  {
+    id: 'controversy_business',
+    name: '炎上商法',
+    type: CardType.POSITIVE,
+    description: '善良さ-100、資産+（能力×3）',
+    iconSource: '/dummy.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const incomeAmount = status.ability * 3;
+        newStatus.goodness -= 100;
+        newStatus.wealth += incomeAmount;
+        
+        return {
+          newStatus,
+          description: `炎上商法で善良さ-100、資産+${incomeAmount}万円（能力${status.ability}×3）`
+        };
+      }
+    },
+    baseAppearanceRate: 0.7,
+    probabilityCalculator: (status) => {
+      // 能力50以上で出現
+      if (status.ability >= 50) {
+        // 能力が高いほど出現率UP、善良さが低いほど出現率UP
+        const abilityMultiplier = status.ability >= 150 ? 1.8 : status.ability >= 100 ? 1.5 : 1.0;
+        const goodnessMultiplier = status.goodness <= 50 ? 1.5 : status.goodness <= 100 ? 1.2 : 0.8;
+        return abilityMultiplier * goodnessMultiplier;
+      }
+      return 0; // 能力50未満では出現しない
+    }
+  },
 ];
 
 // ===============================

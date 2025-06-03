@@ -35,11 +35,37 @@ export const ScoreboardScreen: React.FC<ScoreboardScreenProps> = ({ onBackToHome
     return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
   };
 
+  // 全桁表示で○兆○億○万円の形式にフォーマット
+  const formatFullWealth = (num: number): string => {
+    const absNum = Math.abs(num);
+    
+    if (absNum === 0) return '0万';
+    
+    // 兆、億、万の各桁を計算
+    const cho = Math.floor(absNum / 100000000); // 1兆 = 100000000万円
+    const oku = Math.floor((absNum % 100000000) / 10000); // 1億 = 10000万円
+    const man = absNum % 10000; // 万円
+    
+    const parts: string[] = [];
+    
+    if (cho > 0) {
+      parts.push(`${cho}兆`);
+    }
+    if (oku > 0) {
+      parts.push(`${oku}億`);
+    }
+    if (man > 0 || parts.length === 0) {
+      parts.push(`${Math.floor(man)}万`);
+    }
+    
+    return parts.join('');
+  };
+
   const formatWealth = (wealth: number) => {
     if (wealth >= 0) {
-      return `¥${Math.floor(wealth)}万`;
+      return `¥${formatFullWealth(wealth)}`;
     } else {
-      return `-¥${Math.abs(Math.floor(wealth))}万`;
+      return `-¥${formatFullWealth(Math.abs(wealth))}`;
     }
   };
 

@@ -10,14 +10,14 @@ interface StatusDisplayProps {
 const formatLargeNumber = (num: number): string => {
   const absNum = Math.abs(num);
   
-  if (absNum >= 1e12) {        // 1兆万円以上
-    return `${(num / 1e12).toFixed(1)}兆`;
-  } else if (absNum >= 1e8) {  // 1億万円以上
-    return `${(num / 1e8).toFixed(1)}億`;
-  } else if (absNum >= 1e4) {  // 1万万円以上
-    return `${(num / 1e4).toFixed(1)}万`;
+  if (absNum >= 1000000000000) {    // 1兆万円以上（1京円以上）
+    return `${(num / 1000000000000).toFixed(2)}京円`;
+  } else if (absNum >= 100000000) { // 1億万円以上（1兆円以上）
+    return `${(num / 100000000).toFixed(2)}兆円`;
+  } else if (absNum >= 10000) {     // 1万万円以上（1億円以上）
+    return `${(num / 10000).toFixed(2)}億円`;
   } else {
-    return Math.floor(num).toString();
+    return `${Math.floor(num)}万円`;
   }
 };
 
@@ -44,7 +44,7 @@ export const StatusDisplay: React.FC<StatusDisplayProps> = ({ gameState, onStatu
       onClick={() => onStatusClick?.('wealth')}
     >
       <div className={`text-3xl font-bold ${gameState.status.wealth >= 0 ? 'text-green-400' : 'text-red-500'}`}>
-        {gameState.status.wealth >= 0 ? '¥' : '-¥'}{formatLargeNumber(Math.abs(gameState.status.wealth))}万円
+        {gameState.status.wealth >= 0 ? '¥' : '-¥'}{formatLargeNumber(Math.abs(gameState.status.wealth))}
       </div>
       <div className="text-sm text-gray-300 mt-1">総資産</div>
     </div>

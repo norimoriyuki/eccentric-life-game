@@ -33,7 +33,8 @@ const getStateDisplayName = (stateName: string): string => {
     'compound': '複利',
     'addiction': '薬中',
     'passiveIncome': '不労所得',
-    'trauma': 'トラウマ'
+    'trauma': 'トラウマ',
+    'security': '警護'
   };
   return stateNameMap[stateName] || stateName;
 };

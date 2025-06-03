@@ -911,7 +911,7 @@ export const negativeCards: Card[] = [
 
   {
     id: 'aging',
-    name: '加齢',
+    name: '過労',
     type: CardType.NEGATIVE,
     description: '年齢+3歳',
     iconSource: '/card-images/aging.png',
@@ -1318,10 +1318,10 @@ export const negativeCards: Card[] = [
     baseAppearanceRate: 1.0,
     probabilityCalculator: (status) => {
       // 善良さ1000以上または500以下で出現
-      if (status.goodness >= 1000 || status.goodness <= -500) {
+      if (status.goodness >= 300 || status.goodness <= -100) {
         // 極端な善良さほど出現率UP
-        if (status.goodness >= 2000 || status.goodness <= -1000) return 2.5;
-        if (status.goodness >= 1500 || status.goodness <= -1500) return 1.8;
+        if (status.goodness >= 750 || status.goodness <= -300) return 2.5;
+        if (status.goodness >= 500 || status.goodness <= -200) return 1.8;
         return 1.0;
       }
       return 0; // 条件を満たさない場合は出現しない

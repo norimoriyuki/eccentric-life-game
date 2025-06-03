@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import GoogleAnalytics from './components/GoogleAnalytics'
+
+// Google Analytics測定ID（実際のIDに変更してください）
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX'
 
 export const metadata: Metadata = {
   title: 'エキセントリック人生ゲーム',
@@ -93,7 +97,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
+        {children}
+      </body>
     </html>
   )
 } 

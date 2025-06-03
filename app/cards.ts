@@ -1004,7 +1004,6 @@ export const negativeCards: Card[] = [
     baseAppearanceRate: 1,
     probabilityCalculator: (status) => {
       if (status.age > 80) return status.age - 75;
-      if (status.age > 60) return 1.5 + (status.age - 60) * 0.1;
       return 0;
     }
   },
@@ -1569,7 +1568,7 @@ export const negativeCards: Card[] = [
     name: '冤罪',
     type: CardType.NEGATIVE,
     description: '善良さ-100、資産-500万円',
-    iconSource: '/dummy.png',
+    iconSource: '/card-images/false_accusation.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {

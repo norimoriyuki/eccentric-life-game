@@ -974,6 +974,37 @@ export const positiveCards: Card[] = [
       return 0; // 能力50未満では出現しない
     }
   },
+
+  {
+    id: 'small_business',
+    name: '小規模事業',
+    type: CardType.POSITIVE,
+    description: '不労所得+2',
+    iconSource: '/dummy.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        newStatus.passiveIncome = (newStatus.passiveIncome || 0) + 2;
+        
+        return {
+          newStatus,
+          description: '小規模事業で不労所得+2（毎ターン+200万円）'
+        };
+      }
+    },
+    baseAppearanceRate: 0.6,
+    probabilityCalculator: (status) => {
+      // 能力150以上で出現
+      if (status.ability >= 150) {
+        // 能力が高いほど出現率UP
+        if (status.ability >= 250) return 2.5;
+        if (status.ability >= 200) return 2.0;
+        return 1;
+      }
+      return 0; // 能力150未満では出現しない
+    }
+  },
 ];
 
 // ===============================

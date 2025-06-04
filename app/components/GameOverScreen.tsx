@@ -7,9 +7,16 @@ import { saveScore } from '../../lib/scoreboard';
 interface GameOverScreenProps {
   gameState: GameState;
   onResetGame: () => void;
+  onBackToHome: () => void;
+  onRestartGame: () => void;
 }
 
-export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onResetGame }) => {
+export const GameOverScreen: React.FC<GameOverScreenProps> = ({ 
+  gameState, 
+  onResetGame: _onResetGame, 
+  onBackToHome, 
+  onRestartGame 
+}) => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [playerName, setPlayerName] = useState(gameState.playerName);
@@ -110,12 +117,21 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRes
                 </div>
               )}
 
-              <button
-                onClick={onResetGame}
-                className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl"
-              >
-                🔄 再人生ガチャ
-              </button>
+              <div className="space-y-3">
+                <button
+                  onClick={onBackToHome}
+                  className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl"
+                >
+                  🏠 ホームに戻る
+                </button>
+
+                <button
+                  onClick={onRestartGame}
+                  className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-lg text-lg transform hover:scale-105 transition-all shadow-xl"
+                >
+                  🔄 再人生ガチャ
+                </button>
+              </div>
             </div>
             
           </div>

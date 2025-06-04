@@ -327,6 +327,31 @@ const EccentricLifeGame: React.FC = () => {
     setCurrentScreen(GameScreen.HOME); // タイトル画面に戻る
   };
 
+  // ホームに戻る（ゲームオーバー画面から）
+  const backToHome = () => {
+    // 現在の名前を保持（GameEngineがリセット前に名前を保持する）
+    const currentPlayerName = gameEngine.getState().playerName;
+    gameEngine.resetGame();
+    setGameState(gameEngine.getState());
+    // 名前を保持してタイトル画面に戻る
+    setPlayerName(currentPlayerName);
+    setDrawnCards(null);
+    setSelectedPositiveCards([]);
+    setCurrentScreen(GameScreen.HOME); // タイトル画面に戻る
+  };
+
+  // ゲーム再スタート（同じプレイヤー名で即座に開始）
+  const restartGame = () => {
+    const currentPlayerName = gameEngine.getState().playerName;
+    // ゲームを完全にリセット
+    gameEngine.resetGame();
+    setGameState(gameEngine.getState());
+    setDrawnCards(null);
+    setSelectedPositiveCards([]);
+    // 同じ名前で即座にゲーム開始
+    initializeGame(currentPlayerName);
+  };
+
   // 自殺（即ゲームオーバー）
   const commitSuicide = () => {
     // GameEngineの専用メソッドを使用して確実に自殺理由を設定
@@ -425,7 +450,7 @@ const EccentricLifeGame: React.FC = () => {
   }
 
   if (currentScreen === GameScreen.GAME_OVER) {
-    return <GameOverScreen gameState={gameState} onResetGame={resetGame} />;
+    return <GameOverScreen gameState={gameState} onResetGame={resetGame} onBackToHome={backToHome} onRestartGame={restartGame} />;
   }
 
   if (currentScreen === GameScreen.SCOREBOARD) {

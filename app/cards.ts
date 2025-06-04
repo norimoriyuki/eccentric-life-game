@@ -205,7 +205,7 @@ export const positiveCards: Card[] = [
     id: 'surrender',
     name: '自首',
     type: CardType.POSITIVE,
-    description: '善良さ×0.1年間し善良さ0に',
+    description: '-善良さ×0.1年間服役し善良さ0に',
     iconSource: '/card-images/surrender.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
@@ -1181,7 +1181,7 @@ export const negativeCards: Card[] = [
     id: 'arrest',
     name: '逮捕',
     type: CardType.NEGATIVE,
-    description: '善良さ×0.2年間服役し善良さ0に',
+    description: '-善良さ×0.2年間服役し善良さ0に',
     iconSource: '/card-images/arrest.png',
     effect: {
       type: EffectType.STATUS_CHANGE,

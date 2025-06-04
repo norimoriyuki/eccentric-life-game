@@ -92,13 +92,6 @@ export const StatusExplanationOverlay: React.FC<StatusExplanationOverlayProps> =
             {explanation.description}
           </p>
         </div>
-
-        {/* 閉じる指示 */}
-        <div className="text-center">
-          <div className="text-xs text-gray-500">
-            📱 画面をタップして閉じる
-          </div>
-        </div>
       </div>
     </div>
   );

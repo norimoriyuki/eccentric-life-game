@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { GameEngine } from './game-engine';
-import { GameState, Card, CardDrawResult, GameOverReason, GameStatus, GameInitParams } from './types';
+import { GameState, Card, CardDrawResult, GameStatus, GameInitParams } from './types';
 import { CardExecutionOverlay } from './components/CardExecutionOverlay';
 import { HomeScreen } from './components/HomeScreen';
 import { MainGameScreen } from './components/MainGameScreen';

@@ -1189,14 +1189,15 @@ export const negativeCards: Card[] = [
         const newStatus = { ...status };
         const currentGoodness = status.goodness;
         
-        const prisonYears = Math.ceil(Math.abs(currentGoodness) * 0.2); // マイナス善良さの20%
+        const prisonYears = currentGoodness < 0 ? Math.ceil(Math.abs(currentGoodness) * 0.2) : 0; // マイナス善良さの20%
         newStatus.goodness = 0; // 善良さを0に回復
-        newStatus.age += prisonYears;
-        newStatus.wealth -= 200; // 弁護士費用や罰金
+        if (currentGoodness < 0) {
+          newStatus.age += prisonYears;
+        }
         
         return {
           newStatus,
-          description: `逮捕され${prisonYears}年間の服役、善良さが0に回復、年齢+${prisonYears}歳、費用-200万円`
+          description: `逮捕され${prisonYears}年間の服役、善良さが0に回復、年齢+${prisonYears}歳`
         };
       }
     },

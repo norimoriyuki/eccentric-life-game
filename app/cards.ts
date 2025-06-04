@@ -1535,18 +1535,18 @@ export const negativeCards: Card[] = [
     id: 'investment_fraud',
     name: '投資詐欺',
     type: CardType.NEGATIVE,
-    description: '資産×0.5倍',
+    description: '資産が0になる',
     iconSource: '/card-images/land_fraud.png',
     effect: {
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
         const oldWealth = newStatus.wealth;
-        newStatus.wealth *= 0.5;
+        newStatus.wealth = 0;
         
         return {
           newStatus,
-          description: `投資詐欺に遭い資産が${Math.floor(oldWealth)}万円から${Math.floor(newStatus.wealth)}万円に半減`
+          description: `投資詐欺に遭い資産が0になった`
         };
       }
     },
@@ -1555,8 +1555,8 @@ export const negativeCards: Card[] = [
       // 能力100以下で出現
       if (status.ability <= 100 && status.wealth >= 200) {
         // 能力が低いほど出現率UP、資産が多いほど出現率UP
-        const abilityMultiplier = status.ability <= 50 ? 2.0 : status.ability <= 75 ? 1.5 : 1.0;
-        const wealthMultiplier = status.wealth >= 1000 ? 1.5 : status.wealth >= 500 ? 1.2 : 0.8;
+        const abilityMultiplier = status.ability <= 10 ? 5.0 : status.ability <= 50 ? 2.0 : 1.0;
+        const wealthMultiplier = status.wealth >= 10000 ? 1.5 : status.wealth >= 1000 ? 1.2 : 0.5;
         return abilityMultiplier * wealthMultiplier;
       }
       return 0; // 能力100より高い場合は出現しない
@@ -1586,6 +1586,41 @@ export const negativeCards: Card[] = [
     probabilityCalculator: (_status) => {
       // 常に一定確率で出現（条件なし）
       return 0.6;
+    }
+  },
+
+  {
+    id: 'dementia',
+    name: 'ボケ',
+    type: CardType.NEGATIVE,
+    description: '能力が0になる',
+    iconSource: '/card-images/dementia.png',
+    effect: {
+      type: EffectType.STATUS_CHANGE,
+      execute: (status: GameStatus): CardEffectResult => {
+        const newStatus = { ...status };
+        const oldAbility = newStatus.ability;
+        newStatus.ability = 0;
+        
+        return {
+          newStatus,
+          description: `認知症により能力が${Math.floor(oldAbility)}から0になった`
+        };
+      }
+    },
+    baseAppearanceRate: 1.5,
+    appearanceCondition: {
+      minAge: 70
+    },
+    probabilityCalculator: (status) => {
+      // 70歳以上で出現
+      if (status.age >= 70) {
+        // 年齢が高いほど出現率UP
+        if (status.age >= 100) return 4.0;
+        if (status.age >= 85) return 2.5;
+        if (status.age >= 70) return 1.5;
+      }
+      return 0; // 70歳未満では出現しない
     }
   },
 ];

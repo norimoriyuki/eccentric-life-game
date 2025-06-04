@@ -1189,9 +1189,9 @@ export const negativeCards: Card[] = [
         const newStatus = { ...status };
         const currentGoodness = status.goodness;
         
-        const prisonYears = currentGoodness < 0 ? Math.ceil(Math.abs(currentGoodness) * 0.2) : 0; // マイナス善良さの20%
-        newStatus.goodness = 0; // 善良さを0に回復
+        const prisonYears = currentGoodness < 0 ? Math.ceil(Math.abs(currentGoodness) * 0.2) : 0; // マイナス善良さの20%// 善良さを0に回復
         if (currentGoodness < 0) {
+          newStatus.goodness = 0; 
           newStatus.age += prisonYears;
         }
         

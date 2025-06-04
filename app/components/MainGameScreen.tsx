@@ -45,9 +45,9 @@ export const MainGameScreen: React.FC<MainGameScreenProps> = ({
               {/* ネガティブカード */}
               <div className="mb-3">
                 <h5 className="text-lg font-bold mb-2 text-red-400 text-center">
-                  ランダムリスク {selectedPositiveCards.length > 0 && (
+                  リスク {selectedPositiveCards.length > 0 && (
                     <span className="text-sm text-gray-300">
-                      ({selectedPositiveCards.length}枚ランダムで実行)
+                      （{selectedPositiveCards.length}枚ランダムで実行）
                     </span>
                   )}
                 </h5>
@@ -66,9 +66,9 @@ export const MainGameScreen: React.FC<MainGameScreenProps> = ({
               {/* ポジティブカード */}
               <div className="mb-3">
                 <h5 className="text-lg font-bold mb-2 text-green-400 text-center">
-                  行動選択 {selectedPositiveCards.length > 0 && (
+                  行動 {selectedPositiveCards.length > 0 && (
                     <span className="text-sm text-gray-300">
-                      (実行順: {selectedPositiveCards.length}枚選択中)
+                      （{selectedPositiveCards.length}枚実行）
                     </span>
                   )}
                 </h5>
@@ -104,7 +104,7 @@ export const MainGameScreen: React.FC<MainGameScreenProps> = ({
                     cursor: selectedPositiveCards.length === 0 ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  ⚡ {selectedPositiveCards.length}枚実行
+                  ⚡ 決定
                 </button>
                 
                 <button

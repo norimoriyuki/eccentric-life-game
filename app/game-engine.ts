@@ -14,6 +14,7 @@ import { positiveCards, negativeCards } from './cards';
 
 // ゲーム内の上限値定数
 const WEALTH_CAP = 1e15 - 1;        // 999,999,999,999,999万円（1京円-1万円）
+const WEALTH_FLOOR = -(1e15 - 1);   // -999,999,999,999,999万円（マイナス1京円+1万円）
 
 /**
  * シンプルな重み計算（weight-utils の代替）
@@ -21,6 +22,19 @@ const WEALTH_CAP = 1e15 - 1;        // 999,999,999,999,999万円（1京円-1万�
 function calculateAppearanceWeight(): number {
   // 簡略化された実装
   return 1;
+}
+
+/**
+ * 資産の上限・下限チェック
+ */
+function clampWealth(wealth: number): number {
+  if (wealth > WEALTH_CAP) {
+    return WEALTH_CAP;
+  }
+  if (wealth < WEALTH_FLOOR) {
+    return WEALTH_FLOOR;
+  }
+  return wealth;
 }
 
 /**
@@ -270,6 +284,9 @@ export class GameEngine {
       newStatus = { ...newStatus, age: newStatus.age + 3 };
     }
 
+    // 最終的な資産の上限・下限チェック
+    newStatus.wealth = clampWealth(newStatus.wealth);
+
     // ゲーム状態を更新
     this.state.selectedPositiveCards = positiveCards;
     this.state.selectedNegativeCards = autoSelectedNegativeCards;
@@ -343,10 +360,8 @@ export class GameEngine {
       newStatus.ability -= newStatus.trauma * 5; // トラウマレベル×5の能力減少
     }
 
-    // 資産上限チェック
-    if (newStatus.wealth > WEALTH_CAP) {
-      newStatus.wealth = WEALTH_CAP;
-    }
+    // 資産の上限・下限チェック
+    newStatus.wealth = clampWealth(newStatus.wealth);
 
     // 他の状態効果もここに追加可能
     // 例：「再生」状態なら能力回復など
@@ -365,9 +380,9 @@ export class GameEngine {
     if (card.effect.execute) {
       const result = card.effect.execute(currentStatus);
       
-      // カード効果実行後に資産上限をチェック
-      if (result.newStatus && result.newStatus.wealth > WEALTH_CAP) {
-        result.newStatus.wealth = WEALTH_CAP;
+      // カード効果実行後に資産の上限・下限をチェック
+      if (result.newStatus) {
+        result.newStatus.wealth = clampWealth(result.newStatus.wealth);
       }
       
       return result;

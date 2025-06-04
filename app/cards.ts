@@ -1541,7 +1541,6 @@ export const negativeCards: Card[] = [
       type: EffectType.STATUS_CHANGE,
       execute: (status: GameStatus): CardEffectResult => {
         const newStatus = { ...status };
-        const oldWealth = newStatus.wealth;
         newStatus.wealth = 0;
         
         return {

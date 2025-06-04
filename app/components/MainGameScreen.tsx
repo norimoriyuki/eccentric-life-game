@@ -111,7 +111,7 @@ export const MainGameScreen: React.FC<MainGameScreenProps> = ({
                   onClick={onShowSuicideConfirmation}
                   className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-2 px-6 rounded-lg text-sm transform hover:scale-105 transition-all shadow-xl"
                 >
-                  💀 自殺
+                  👼
                 </button>
               </div>
             </>

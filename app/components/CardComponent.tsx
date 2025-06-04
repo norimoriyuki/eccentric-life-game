@@ -35,7 +35,7 @@ export const CardComponent: React.FC<CardComponentProps> = ({
     {/* 実行順番号（ポジティブカードのみ） */}
     {isPositive && (
       <div className={`
-        absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all font-bold text-sm
+        absolute top-2 right-2 w-8 h-8 rounded-md flex items-center justify-center transition-all font-bold text-sm
         ${isSelected 
           ? 'bg-yellow-500 text-black ring-2 ring-yellow-300' 
           : 'bg-white/20 border-2 border-white text-white'

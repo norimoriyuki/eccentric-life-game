@@ -2,15 +2,41 @@
 
 import Script from 'next/script'
 
+// ゲームステータスの型定義
+interface GameStatus {
+  wealth: number
+  goodness: number
+  ability: number
+  age: number
+  allowance?: number
+  passiveIncome?: number
+  trauma?: number
+}
+
+// Google Analytics イベント設定の型定義
+interface AnalyticsEventConfig {
+  event_category: string
+  event_label?: string
+  value?: number
+  [key: string]: string | number | undefined
+}
+
+// Google Analytics ページビュー設定の型定義
+interface AnalyticsPageConfig {
+  page_title?: string
+  page_location?: string
+  [key: string]: string | number | boolean | undefined
+}
+
 // グローバルなgtag関数の型定義
 declare global {
   interface Window {
     gtag: (
       command: 'config' | 'event' | 'js',
       targetId: string | Date,
-      config?: any
+      config?: AnalyticsEventConfig | AnalyticsPageConfig
     ) => void
-    dataLayer: any[]
+    dataLayer: unknown[]
   }
 }
 
@@ -43,7 +69,7 @@ export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps)
 // ゲーム特有のGoogle Analytics イベント追跡用のヘルパー関数
 export const trackGameEvent = {
   // ゲーム開始
-  gameStart: (playerName: string, initialStatus: any) => {
+  gameStart: (playerName: string, initialStatus: GameStatus) => {
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', 'game_start', {
         event_category: 'game_action',
@@ -69,7 +95,7 @@ export const trackGameEvent = {
   },
 
   // ゲーム終了
-  gameEnd: (reason: string, finalStatus: any, turn: number) => {
+  gameEnd: (reason: string, finalStatus: GameStatus, turn: number) => {
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', 'game_end', {
         event_category: 'game_result',
@@ -84,7 +110,7 @@ export const trackGameEvent = {
   },
 
   // 特定のカード効果
-  cardEffect: (cardName: string, effectType: string, statusChange: any) => {
+  cardEffect: (cardName: string, effectType: string, statusChange: Partial<GameStatus>) => {
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', 'card_effect', {
         event_category: 'game_mechanics',
@@ -98,12 +124,12 @@ export const trackGameEvent = {
   },
 
   // ゲーム設定変更
-  settingsChange: (setting: string, value: any) => {
+  settingsChange: (setting: string, value: string | number | boolean) => {
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', 'settings_change', {
         event_category: 'user_interaction',
         setting_name: setting,
-        setting_value: value,
+        setting_value: String(value),
       })
     }
   }
@@ -123,9 +149,10 @@ export const trackEvent = (action: string, category: string, label?: string, val
 // ページビュー追跡用のヘルパー関数
 export const trackPageView = (url: string, title: string) => {
   if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('config', process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '', {
+    const config: AnalyticsPageConfig = {
       page_title: title,
       page_location: url,
-    })
+    }
+    window.gtag('config', process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '', config)
   }
 } 

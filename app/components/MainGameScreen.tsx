@@ -45,7 +45,11 @@ export const MainGameScreen: React.FC<MainGameScreenProps> = ({
               {/* ネガティブカード */}
               <div className="mb-3">
                 <h5 className="text-lg font-bold mb-2 text-red-400 text-center">
-                  ランダムリスク
+                  ランダムリスク {selectedPositiveCards.length > 0 && (
+                    <span className="text-sm text-gray-300">
+                      ({selectedPositiveCards.length}枚ランダムで実行)
+                    </span>
+                  )}
                 </h5>
                 <div className="grid grid-cols-2 gap-2">
                   {drawnCards.negativeCards.map((card, index) => (
@@ -62,18 +66,30 @@ export const MainGameScreen: React.FC<MainGameScreenProps> = ({
               {/* ポジティブカード */}
               <div className="mb-3">
                 <h5 className="text-lg font-bold mb-2 text-green-400 text-center">
-                  行動選択
+                  行動選択 {selectedPositiveCards.length > 0 && (
+                    <span className="text-sm text-gray-300">
+                      (実行順: {selectedPositiveCards.length}枚選択中)
+                    </span>
+                  )}
                 </h5>
                 <div className="grid grid-cols-2 gap-2">
-                  {drawnCards.positiveCards.map((card, index) => (
-                    <CardComponent
-                      key={`positive_${card.id}_${index}`}
-                      card={card}
-                      isPositive={true}
-                      isSelected={selectedPositiveCards.some(c => c.id === card.id)}
-                      onClick={() => onTogglePositiveCard(card)}
-                    />
-                  ))}
+                  {drawnCards.positiveCards.map((card, index) => {
+                    const isSelected = selectedPositiveCards.some(c => c.id === card.id);
+                    const selectionOrder = isSelected 
+                      ? selectedPositiveCards.findIndex(c => c.id === card.id) + 1 
+                      : undefined;
+                    
+                    return (
+                      <CardComponent
+                        key={`positive_${card.id}_${index}`}
+                        card={card}
+                        isPositive={true}
+                        isSelected={isSelected}
+                        selectionOrder={selectionOrder}
+                        onClick={() => onTogglePositiveCard(card)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
 

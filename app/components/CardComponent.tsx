@@ -6,6 +6,7 @@ interface CardComponentProps {
   card: Card;
   isPositive: boolean;
   isSelected?: boolean;
+  selectionOrder?: number; // 実行順序（1, 2, 3...）
   onClick?: () => void;
   disabled?: boolean;
 }
@@ -14,6 +15,7 @@ export const CardComponent: React.FC<CardComponentProps> = ({
   card, 
   isPositive, 
   isSelected, 
+  selectionOrder,
   onClick, 
   disabled 
 }) => (
@@ -30,13 +32,19 @@ export const CardComponent: React.FC<CardComponentProps> = ({
     `}
     onClick={disabled ? undefined : onClick}
   >
-    {/* チェックボックス（ポジティブカードのみ） */}
+    {/* 実行順番号（ポジティブカードのみ） */}
     {isPositive && (
-      <div className="absolute top-2 right-2 w-6 h-6 border-2 border-white rounded bg-white/20 flex items-center justify-center transition-all">
-        {isSelected && (
-          <div className="text-white font-black text-xl">
-            ✓
-          </div>
+      <div className={`
+        absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all font-bold text-sm
+        ${isSelected 
+          ? 'bg-yellow-500 text-black ring-2 ring-yellow-300' 
+          : 'bg-white/20 border-2 border-white text-white'
+        }
+      `}>
+        {isSelected && selectionOrder ? (
+          <span className="text-black font-black">{selectionOrder}</span>
+        ) : (
+          <span className="text-white opacity-60">　</span>
         )}
       </div>
     )}

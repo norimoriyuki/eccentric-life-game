@@ -399,6 +399,16 @@ export class GameEngine {
   }
 
   /**
+   * 自殺によるゲームオーバー処理
+   */
+  commitSuicide(): void {
+    this.state.isGameOver = true;
+    this.state.gameOverReason = GameOverReason.SUICIDE;
+    
+    console.log('自殺実行: ゲームオーバー理由が設定されました:', this.state.gameOverReason);
+  }
+
+  /**
    * ゲームをリセット
    */
   resetGame(): void {

@@ -329,9 +329,8 @@ const EccentricLifeGame: React.FC = () => {
 
   // 自殺（即ゲームオーバー）
   const commitSuicide = () => {
-    // ゲーム状態を強制的にゲームオーバーに設定
-    gameEngine.getState().isGameOver = true;
-    gameEngine.getState().gameOverReason = GameOverReason.SUICIDE; // 自殺を理由として設定
+    // GameEngineの専用メソッドを使用して確実に自殺理由を設定
+    gameEngine.commitSuicide();
     setGameState(gameEngine.getState());
     setCurrentScreen(GameScreen.GAME_OVER);
   };

@@ -59,7 +59,7 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ gameState, onRes
             
             <div className="bg-gray-900 border-2 border-red-600 p-4 rounded-lg shadow-xl mb-6">
               <p className="text-lg mb-4 text-red-300">
-                運命の審判: <span className="font-bold text-red-400 block mt-1">
+                 <span className="font-bold text-red-400 block mt-1">
                   {gameState.gameOverReason ? deathReasonMap[gameState.gameOverReason] || gameState.gameOverReason : '原因不明で消滅'}
                 </span>
               </p>

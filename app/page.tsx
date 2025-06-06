@@ -241,8 +241,8 @@ const EccentricLifeGame: React.FC = () => {
           descriptions.push(`トラウマ効果: 能力-${abilityDecrease}（レベル${previewStatusAfter.trauma}×5）`);
         }
         
-        previewStatusAfter.age += 1;
-        descriptions.push('年齢+1歳');
+        previewStatusAfter.age += 3;
+        descriptions.push('年齢+3歳');
         
         if (descriptions.length === 1) {
           descriptions.unshift('状態効果なし');

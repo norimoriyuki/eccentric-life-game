@@ -81,6 +81,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onInitializeGame, defaul
                 <p className="text-yellow-400">💡 行動の数だけランダムな災厄が降りかかる</p>
                 <p className="text-green-400">🎯 いい人生を引くまでリセマラしよう！</p>
               </div>
+              
+              {/* 製作者リンク */}
+              <div className="mt-6 text-center">
+                <a 
+                  href="https://x.com/kushiro_mtg" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-xs text-gray-500 hover:text-gray-400 transition-colors"
+                >
+                  製作者X
+                </a>
+              </div>
             </div>
           </div>
         </div>

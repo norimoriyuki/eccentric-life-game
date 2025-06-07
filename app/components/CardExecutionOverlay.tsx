@@ -91,7 +91,7 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4 pb-12"
       onClick={onNext}
     >
       <div 
@@ -212,7 +212,7 @@ export const CardExecutionOverlay: React.FC<CardExecutionOverlayProps> = ({
       </div>
 
       {onSkip && currentIndex < 2 && (
-        <div className="mt-4">
+        <div className="mt-4 pb-8">
           <button
             onClick={(e) => {
               e.stopPropagation();

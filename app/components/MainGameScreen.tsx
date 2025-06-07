@@ -94,7 +94,7 @@ export const MainGameScreen: React.FC<MainGameScreenProps> = ({
               </div>
 
               {/* 操作ボタン */}
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-2 mb-20">
                 <button
                   onClick={onExecuteCards}
                   disabled={selectedPositiveCards.length === 0}
